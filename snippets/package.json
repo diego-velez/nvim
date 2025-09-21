@@ -1,0 +1,27 @@
+{
+  "name": "DVT Snippets :)",
+  "contributes": {
+    "snippets": [
+      {
+        "language": "all",
+        "path": "./global.json"
+      },
+      {
+        "language": "java",
+        "path": "./java.json"
+      },
+      {
+        "language": "lua",
+        "path": "./lua.json"
+      },
+      {
+        "language": "c",
+        "path": "./c.json"
+      },
+      {
+        "language": "java",
+        "path": "./java.json"
+      }
+    ]
+  }
+}
