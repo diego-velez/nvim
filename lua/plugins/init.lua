@@ -39,7 +39,7 @@ now(function()
       'nvim-treesitter/nvim-treesitter',
       'nvim-treesitter/nvim-treesitter-textobjects',
       'JoosepAlviste/nvim-ts-context-commentstring',
-      'dmtrKovalenko/fff.nvim',
+      'diego-velez/fff.nvim',
     },
   }
 
