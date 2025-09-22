@@ -2,7 +2,7 @@
 
 ## Startup Screenshot
 
-<img width="2554" height="1440" alt="Neovim Startup" src="https://github.com/user-attachments/assets/7aef32c6-9521-4c1f-b44e-c48bdec73484" />
+<img width="1895" height="1020" alt="Neovim Startup" src="https://github.com/user-attachments/assets/bbf78864-b6c7-453b-8f21-7a4f327a45bc" />
 
 ## Overview
 
