@@ -15,11 +15,11 @@ I want minimal mental overhead, with as much functionality as possible, for this
 | Purpose         | Plugin                 |
 | --------------- | ---------------------- |
 | Package manager | mini.deps              |
-| File Browser    | mini.files             |
+| File Browser    | mini.files, fff.nvim   |
 | Picker          | mini.pick              |
 | Startup Screen  | mini.starter           |
 | Statusline      | mini.statusline        |
-| Completion      | mini.completion       |
+| Completion      | mini.completion        |
 | File Switcher   | spear.nvim             |
 | Colorscheme     | Dracula                |
 | Formatter       | conform                |
