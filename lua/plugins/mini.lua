@@ -501,6 +501,20 @@ later(function()
     },
   })
 
+  -- Do not use arrow keys for completion menu
+  vim.keymap.set('i', '<down>', function()
+    if vim.fn.pumvisible() == 1 then
+      return '<C-e><down>'
+    end
+    return '<down>'
+  end, { expr = true })
+  vim.keymap.set('i', '<up>', function()
+    if vim.fn.pumvisible() == 1 then
+      return '<C-e><up>'
+    end
+    return '<up>'
+  end, { expr = true })
+
   local function simulate_keypress(key)
     local termcodes = vim.api.nvim_replace_termcodes(key, true, false, true)
     vim.api.nvim_feedkeys(termcodes, 'm', false)
