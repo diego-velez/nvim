@@ -306,3 +306,9 @@ later(function()
 
   require 'plugins.no-neck-pain'
 end)
+
+later(function()
+  add '3rd/image.nvim'
+
+  require('image').setup()
+end)
