@@ -310,5 +310,16 @@ end)
 later(function()
   add '3rd/image.nvim'
 
-  require('image').setup()
+  local image = require 'image'
+  image.setup()
+
+  vim.keymap.set('n', '<leader>tI', function()
+    if image.is_enabled() then
+      image.disable()
+      vim.notify('Images disabled', vim.log.levels.INFO)
+    else
+      image.enable()
+      vim.notify('Images enabled', vim.log.levels.INFO)
+    end
+  end, { desc = 'Toggle [I]mages' })
 end)
