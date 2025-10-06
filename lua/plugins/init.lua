@@ -320,6 +320,7 @@ later(function()
   require 'plugins.no-neck-pain'
 end)
 
+-- Images in the terminal
 later(function()
   add '3rd/image.nvim'
 
