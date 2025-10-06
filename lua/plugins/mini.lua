@@ -83,8 +83,8 @@ later(function()
     custom_textobjects = {
       -- Code Block
       o = ai.gen_spec.treesitter {
-        a = { '@block.outer', '@conditional.outer', '@loop.outer' },
-        i = { '@block.inner', '@conditional.inner', '@loop.inner' },
+        a = { '@conditional.outer', '@loop.outer' },
+        i = { '@conditional.inner', '@loop.inner' },
       },
 
       -- [C]lass
