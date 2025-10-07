@@ -80,3 +80,24 @@ vim.keymap.set(
   '<cmd>LazyGitFilter<cr>',
   { desc = 'Commit [H]istory (Project cwd)' }
 )
+
+vim.keymap.set('n', '<leader>gm', function()
+  vim.cmd 'noautocmd write'
+  vim.fn.jobstart({ 'git', 'difftool', vim.fn.expand '%' }, {
+    on_exit = function()
+      vim.schedule(function()
+        vim.cmd.checktime()
+      end)
+    end,
+  })
+end, { noremap = true, silent = true, desc = 'Diff Tool' })
+vim.keymap.set('n', '<leader>gM', function()
+  vim.cmd 'noautocmd write'
+  vim.fn.jobstart({ 'git', 'mergetool', vim.fn.expand '%' }, {
+    on_exit = function()
+      vim.schedule(function()
+        vim.cmd.checktime()
+      end)
+    end,
+  })
+end, { noremap = true, silent = true, desc = 'Merge Tool' })
