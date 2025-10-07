@@ -277,16 +277,19 @@ later(function()
     Rule('$', '$', 'typst')
       :with_pair(cond.not_after_text '$')
       :with_pair(cond.not_before_text '\\')
+      :with_pair(ts_cond.is_not_ts_node 'string')
       :with_move(cond.after_text '$'),
     Rule('*', '*', 'typst')
       :with_pair(cond.not_after_text '*')
       :with_pair(cond.not_before_text '\\')
       :with_pair(ts_cond.is_not_ts_node 'math')
+      :with_pair(ts_cond.is_not_ts_node 'string')
       :with_move(cond.after_text '*'),
     Rule('_', '_', 'typst')
       :with_pair(cond.not_after_text '_')
       :with_pair(cond.not_before_text '\\')
       :with_pair(ts_cond.is_not_ts_node 'math')
+      :with_pair(ts_cond.is_not_ts_node 'string')
       :with_move(cond.after_text '_'),
   }
 end)
