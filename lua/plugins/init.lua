@@ -132,6 +132,32 @@ later(function()
 
   require('nvim-autopairs').setup()
   require('nvim-ts-autotag').setup()
+
+  local npairs = require 'nvim-autopairs'
+  local Rule = require 'nvim-autopairs.rule'
+  local cond = require 'nvim-autopairs.conds'
+  local ts_cond = require 'nvim-autopairs.ts-conds'
+
+  -- Autopair rules for Typst
+  npairs.add_rules {
+    Rule('$', '$', 'typst')
+      :with_pair(cond.not_after_text '$')
+      :with_pair(cond.not_before_text '\\')
+      :with_pair(ts_cond.is_not_ts_node 'string')
+      :with_move(cond.after_text '$'),
+    Rule('*', '*', 'typst')
+      :with_pair(cond.not_after_text '*')
+      :with_pair(cond.not_before_text '\\')
+      :with_pair(ts_cond.is_not_ts_node 'math')
+      :with_pair(ts_cond.is_not_ts_node 'string')
+      :with_move(cond.after_text '*'),
+    Rule('_', '_', 'typst')
+      :with_pair(cond.not_after_text '_')
+      :with_pair(cond.not_before_text '\\')
+      :with_pair(ts_cond.is_not_ts_node 'math')
+      :with_pair(ts_cond.is_not_ts_node 'string')
+      :with_move(cond.after_text '_'),
+  }
 end)
 
 -- Support TODO comments
@@ -256,42 +282,6 @@ later(function()
   add 'sphamba/smear-cursor.nvim'
 
   require('smear_cursor').setup()
-end)
-
--- Typst preview
-later(function()
-  add {
-    source = 'chomosuke/typst-preview.nvim',
-    checkout = 'v1.3.2',
-  }
-
-  require('typst-preview').setup {}
-
-  local npairs = require 'nvim-autopairs'
-  local Rule = require 'nvim-autopairs.rule'
-  local cond = require 'nvim-autopairs.conds'
-  local ts_cond = require 'nvim-autopairs.ts-conds'
-
-  -- Autopair rules for Typst
-  npairs.add_rules {
-    Rule('$', '$', 'typst')
-      :with_pair(cond.not_after_text '$')
-      :with_pair(cond.not_before_text '\\')
-      :with_pair(ts_cond.is_not_ts_node 'string')
-      :with_move(cond.after_text '$'),
-    Rule('*', '*', 'typst')
-      :with_pair(cond.not_after_text '*')
-      :with_pair(cond.not_before_text '\\')
-      :with_pair(ts_cond.is_not_ts_node 'math')
-      :with_pair(ts_cond.is_not_ts_node 'string')
-      :with_move(cond.after_text '*'),
-    Rule('_', '_', 'typst')
-      :with_pair(cond.not_after_text '_')
-      :with_pair(cond.not_before_text '\\')
-      :with_pair(ts_cond.is_not_ts_node 'math')
-      :with_pair(ts_cond.is_not_ts_node 'string')
-      :with_move(cond.after_text '_'),
-  }
 end)
 
 -- HTTP request support
