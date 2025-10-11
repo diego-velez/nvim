@@ -319,6 +319,7 @@ later(function()
 
   local image = require 'image'
   image.setup()
+  image.disable() -- Disable images by default
 
   vim.keymap.set('n', '<leader>tI', function()
     if image.is_enabled() then
