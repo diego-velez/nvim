@@ -154,8 +154,7 @@ later(function()
     Rule('_', '_', 'typst')
       :with_pair(cond.not_after_text '_')
       :with_pair(cond.not_before_text '\\')
-      :with_pair(ts_cond.is_not_ts_node 'math')
-      :with_pair(ts_cond.is_not_ts_node 'string')
+      :with_pair(ts_cond.is_ts_node 'text')
       :with_move(cond.after_text '_'),
   }
 end)
