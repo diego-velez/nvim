@@ -43,10 +43,12 @@ now(function()
     },
   }
 
+  require 'plugins.mini'
   require 'plugins.colorschemes'
   vim.cmd.colorscheme 'dracula'
 end)
 
+-- Treesitter
 now_if_args(function()
   add {
     source = 'nvim-treesitter/nvim-treesitter',
@@ -57,14 +59,16 @@ now_if_args(function()
       end,
     },
   }
+
+  add {
+    source = 'nvim-treesitter/nvim-treesitter-textobjects',
+    checkout = 'main',
+  }
+
   add 'nvim-treesitter/nvim-treesitter-context'
   add 'folke/ts-comments.nvim'
 
   require 'plugins.treesitter'
-end)
-
-now(function()
-  require 'plugins.mini'
 end)
 
 -- LSP
@@ -154,7 +158,8 @@ later(function()
     Rule('_', '_', 'typst')
       :with_pair(cond.not_after_text '_')
       :with_pair(cond.not_before_text '\\')
-      :with_pair(ts_cond.is_ts_node 'text')
+      :with_pair(ts_cond.is_not_ts_node 'math')
+      :with_pair(ts_cond.is_not_ts_node 'string')
       :with_move(cond.after_text '_'),
   }
 end)

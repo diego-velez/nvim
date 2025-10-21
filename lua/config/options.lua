@@ -77,10 +77,10 @@ vim.o.termguicolors = true
 
 vim.g.netrw_bufsettings = 'nu rnu'
 
--- Use indent based folding, and have all folds opened by default
-vim.o.foldmethod = 'expr'
-vim.o.foldexpr = 'nvim_treesitter#foldexpr()'
--- vim.o.foldmethod = 'indent'
+-- Use treesitter for folding, and indentation
+vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+-- Have all folds opened by default
 vim.o.foldenable = false
 
 -- Set rounded borders the default

@@ -1,67 +1,57 @@
----@diagnostic disable: missing-fields
----@module "tree-sitter"
----@type TSConfig
-require('nvim-treesitter.configs').setup {
-  ensure_installed = {
-    'bash',
-    'c',
-    'diff',
-    'go',
-    'html',
-    'javascript',
-    'jsdoc',
-    'json',
-    'jsonc',
-    'lua',
-    'luadoc',
-    'luap',
-    'markdown',
-    'markdown_inline',
-    'printf',
-    'python',
-    'query',
-    'regex',
-    'toml',
-    'tsx',
-    'typescript',
-    'vim',
-    'vimdoc',
-    'xml',
-    'yaml',
-  },
-  -- Autoinstall languages that are not installed
-  auto_install = true,
-  highlight = {
-    enable = true,
-    -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-    --  If you are experiencing weird indenting issues, add the language to
-    --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-    additional_vim_regex_highlighting = { 'ruby' },
-  },
-  indent = { enable = true, disable = { 'ruby' } },
-  textobjects = {
-    move = {
-      enable = true,
-      goto_next_start = {
-        [']]'] = '@function.outer',
-        [']c'] = '@class.outer',
-        -- [N]ote aka comment
-        [']n'] = '@comment.outer',
-        -- [A]rgument aka parameter
-        [']a'] = '@parameter.inner',
-      },
-      goto_previous_start = {
-        ['[['] = '@function.outer',
-        ['[c'] = '@class.outer',
-        -- [N]ote aka comment
-        ['[n'] = '@comment.outer',
-        -- [A]rgument aka parameter
-        ['[a'] = '@parameter.inner',
-      },
-    },
-  },
+-- Auto-install treesitter parsers
+require('nvim-treesitter').install {
+  'bash',
+  'c',
+  'diff',
+  'go',
+  'html',
+  'javascript',
+  'jsdoc',
+  'json',
+  'jsonc',
+  'lua',
+  'luadoc',
+  'luap',
+  'markdown',
+  'markdown_inline',
+  'printf',
+  'python',
+  'query',
+  'regex',
+  'toml',
+  'tsx',
+  'typescript',
+  'vim',
+  'vimdoc',
+  'xml',
+  'yaml',
 }
 
+-- Setup treesitter textobjects
+
+local move = require 'nvim-treesitter-textobjects.move'
+local goto_previous_start = function(keymap, textobject, description)
+  vim.keymap.set({ 'n', 'x', 'o' }, keymap, function()
+    move.goto_previous_start(textobject, 'textobjects')
+  end, { desc = description })
+end
+local goto_next_start = function(keymap, textobject, description)
+  vim.keymap.set({ 'n', 'x', 'o' }, keymap, function()
+    move.goto_next_start(textobject, 'textobjects')
+  end, { desc = description })
+end
+
+goto_previous_start('[[', '@function.outer', 'Go to previous function')
+goto_previous_start('[c', '@class.outer', 'Go to previous [c]lass')
+goto_previous_start('[n', '@comment.outer', 'Go to previous comment/[n]ote')
+goto_previous_start('[a', '@parameter.inner', 'Go to previous [a]rgument')
+
+goto_next_start(']]', '@function.outer', 'Go to next function')
+goto_next_start(']c', '@class.outer', 'Go to next [c]lass')
+goto_next_start(']n', '@comment.outer', 'Go to next comment/[n]ote')
+goto_next_start(']a', '@parameter.inner', 'Go to next [a]rgument')
+
+-- Setup treesitter context
 local context = require 'treesitter-context'
 context.setup {
   max_lines = 1,
