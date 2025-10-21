@@ -21,11 +21,19 @@ require('nvim-treesitter').install {
   'toml',
   'tsx',
   'typescript',
+  'typst',
   'vim',
   'vimdoc',
   'xml',
   'yaml',
 }
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('Treesitter Highlighting', { clear = true }),
+  callback = function()
+    pcall(vim.treesitter.start)
+  end,
+})
 
 -- Setup treesitter textobjects
 
