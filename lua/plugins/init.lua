@@ -43,8 +43,11 @@ now(function()
     },
   }
 
+  add 'p00f/alabaster.nvim'
+
   require 'plugins.mini'
   require 'plugins.colorschemes'
+
   vim.cmd.colorscheme 'dracula'
 end)
 
