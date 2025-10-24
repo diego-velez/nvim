@@ -831,3 +831,8 @@ vim.keymap.set('n', 'z=', function()
     },
   })
 end, { desc = 'Show spellings suggestions' })
+
+-- NOTE: Start mini.align configuration
+later(function()
+  require('mini.align').setup()
+end)
