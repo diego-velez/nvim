@@ -135,6 +135,13 @@ later(function()
     },
   }
 
+  local lspRefTextHl = vim.api.nvim_get_hl(0, { name = 'LspReferenceText', link = false })
+  vim.api.nvim_set_hl(
+    0,
+    'MiniJump',
+    { fg = lspRefTextHl.fg, bg = lspRefTextHl.bg, underline = true }
+  )
+
   -- To determine if we're currently in ',' backward F/T state
   local in_backward = false
 
@@ -190,6 +197,25 @@ later(function()
 
     MiniJump.jump(target, backward, till)
   end)
+
+  local augroup = vim.api.nvim_create_augroup('MiniJump Highlighting', { clear = true })
+  vim.api.nvim_create_autocmd('User', {
+    desc = 'Disable highliting when in jump',
+    pattern = 'MiniJumpStart',
+    group = augroup,
+    callback = function()
+      vim.b.minicursorword_disable = true
+    end,
+  })
+
+  vim.api.nvim_create_autocmd('User', {
+    desc = 'Enable highliting when not in jump',
+    pattern = 'MiniJumpStop',
+    group = augroup,
+    callback = function()
+      vim.b.minicursorword_disable = false
+    end,
+  })
 end)
 
 -- NOTE: Start mini.pairs configuration
