@@ -130,10 +130,66 @@ end)
 -- NOTE: Start mini.jump configuration
 later(function()
   require('mini.jump').setup {
-    delay = {
-      highlight = -1,
+    mappings = {
+      repeat_jump = '',
     },
   }
+
+  -- To determine if we're currently in ',' backward F/T state
+  local in_backward = false
+
+  ---MiniJump to the opposite direction
+  local function jump_opposite(target, backward, till)
+    if backward then
+      MiniJump.jump(target, false, till)
+    else
+      MiniJump.jump(target, true, till)
+    end
+  end
+
+  vim.keymap.set('n', ',', function()
+    local state = MiniJump.state
+
+    -- Allow re-doing previous jump, only if there is a previous jump
+    if not state.target then
+      return
+    end
+
+    local target = state.target
+    local backward = state.backward
+    local till = state.till
+
+    -- If we're currently in ',' state, then we cannot invert jump direction
+    if in_backward then
+      MiniJump.jump(target, backward, till)
+      return
+    end
+
+    jump_opposite(target, backward, till)
+    in_backward = true
+  end)
+
+  vim.keymap.set('n', ';', function()
+    local state = MiniJump.state
+
+    -- Allow re-doing previous jump, only if there is a previous jump
+    if not state.target then
+      return
+    end
+
+    local target = state.target
+    local backward = state.backward
+    local till = state.till
+
+    -- If we're currently in ',' state, then we need to invert jump direction
+    if in_backward then
+      jump_opposite(target, backward, till)
+      in_backward = false
+      return
+    end
+
+    MiniJump.jump(target, backward, till)
+  end)
 end)
 
 -- NOTE: Start mini.pairs configuration
