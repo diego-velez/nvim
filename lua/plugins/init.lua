@@ -313,13 +313,6 @@ later(function()
   })
 end)
 
--- Focus mode
-later(function()
-  add 'shortcuts/no-neck-pain.nvim'
-
-  require 'plugins.no-neck-pain'
-end)
-
 -- Images in the terminal
 later(function()
   add '3rd/image.nvim'

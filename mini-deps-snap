@@ -1,4 +1,5 @@
 return {
+  ["alabaster.nvim"] = "481910715c46b83b9bf50bb9402d176391fb3017",
   ["conform.nvim"] = "235dd79731c1dc51ec04abb4045cbc54727a172a",
   ["debugprint.nvim"] = "ece265d9a65b55511cce3aaa5e46f39d58b4340e",
   ["dracula.nvim.git"] = "041d923368d540a1e438989ce8f915628081a56a",
@@ -18,7 +19,6 @@ return {
   ["mason-tool-installer.nvim"] = "517ef5994ef9d6b738322664d5fdd948f0fdeb46",
   ["mason.nvim"] = "ad7146aa61dcaeb54fa900144d768f040090bff0",
   ["mini.nvim"] = "cf32454e91b3d963a12fef0314811fb035b62d49",
-  ["no-neck-pain.nvim"] = "c3d96b648501554c9a87530b2ff86c721cddd5c1",
   ["nui.nvim"] = "de740991c12411b663994b2860f1a4fd0937c130",
   ["nvim-autopairs"] = "7a2c97cccd60abc559344042fefb1d5a85b3e33b",
   ["nvim-dap"] = "6782b097af2417a4c3e33849b0a26ae2188bd7ea",
