@@ -516,22 +516,24 @@ end)
 
 -- NOTE: Start mini.bracketed configuration
 later(function()
+  -- stylua: ignore start
   require('mini.bracketed').setup {
-    buffer = { suffix = '', options = {} },
-    comment = { suffix = '', options = {} },
-    conflict = { suffix = '', options = {} },
-    diagnostic = { suffix = '', options = {} },
-    file = { suffix = 'f', options = {} },
-    indent = { suffix = '', options = {} },
-    jump = { suffix = 'j', options = {} },
-    location = { suffix = '', options = {} },
-    oldfile = { suffix = 'o', options = {} },
-    quickfix = { suffix = '', options = {} },
-    treesitter = { suffix = '', options = {} },
-    undo = { suffix = '', options = {} },
-    window = { suffix = '', options = {} },
-    yank = { suffix = '', options = {} },
+    buffer     = { suffix = '',  options = {} },
+    comment    = { suffix = '',  options = {} },
+    conflict   = { suffix = '',  options = {} },
+    diagnostic = { suffix = '',  options = {} },
+    file       = { suffix = 'f', options = {} },
+    indent     = { suffix = '',  options = {} },
+    jump       = { suffix = 'j', options = {} },
+    location   = { suffix = '',  options = {} },
+    oldfile    = { suffix = 'o', options = {} },
+    quickfix   = { suffix = '',  options = {} },
+    treesitter = { suffix = '',  options = {} },
+    undo       = { suffix = '',  options = {} },
+    window     = { suffix = '',  options = {} },
+    yank       = { suffix = '',  options = {} },
   }
+  -- stylua: ignore end
 end)
 
 -- NOTE: Start mini.snippets configuration
