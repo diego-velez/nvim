@@ -184,16 +184,6 @@ later(function()
   require 'plugins.edgy'
 end)
 
--- Terminal support
-later(function()
-  add {
-    source = 'nvzone/floaterm',
-    depends = { 'nvzone/volt' },
-  }
-
-  require 'plugins.terminal'
-end)
-
 -- Search and replace
 later(function()
   add 'MagicDuck/grug-far.nvim'
