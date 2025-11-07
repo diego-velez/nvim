@@ -195,7 +195,7 @@ end)
 later(function()
   add {
     source = 'pmizio/typescript-tools.nvim',
-    depends = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    depends = { 'nvim-lua/plenary.nvim' },
   }
 
   add 'dmmulroy/ts-error-translator.nvim'
