@@ -280,13 +280,15 @@ end)
 later(function()
   add 'mistweaverco/kulala.nvim'
 
+  local kulala = require 'kulala'
+  kulala.setup()
+
   -- stylua: ignore
   vim.api.nvim_create_autocmd('FileType', {
     desc = 'Kulala specific keymaps',
     group = vim.api.nvim_create_augroup('DVT Kulala', { clear = true }),
     pattern = { 'http', 'rest' },
     callback = function(args)
-      local kulala = require 'kulala'
       vim.keymap.set('n', '<leader>r', '', { buffer = args.buf, desc = '[R]un' })
       vim.keymap.set('n', '<leader>rs', kulala.run, { buffer = args.buf, desc = '[S]end request' })
       vim.keymap.set('n', '<leader>ra', kulala.run_all, { buffer = args.buf, desc = 'Send [A]ll requests' })
