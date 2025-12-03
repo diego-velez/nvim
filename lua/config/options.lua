@@ -102,3 +102,6 @@ vim.o.complete = '.,w,b,u,t'
 vim.o.shortmess = 'tTWocFCO'
 
 vim.o.formatoptions = 'croqnljp'
+
+-- Treat dash as 'word' textobject part
+vim.o.iskeyword = '@,48-57,_,192-255,-'
