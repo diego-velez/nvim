@@ -777,25 +777,11 @@ vim.keymap.set('n', '<leader>sw', function()
   MiniPick.builtin.grep_live()
 end, { desc = '[S]earch [W]ord' })
 
--- Use fff.nvim if it is available
--- Fallback to MiniPick.builtin.files
-local fff_is_available, fff = pcall(require, 'fff')
-if fff_is_available then
-  fff.setup { ui = { picker = 'mini' } }
-end
 vim.keymap.set('n', '<leader>sf', function()
-  if fff_is_available then
-    fff.find_files()
-  else
-    MiniPick.registry.files()
-  end
+  MiniPick.registry.files()
 end, { desc = '[S]earch [F]iles' }) -- See https://github.com/echasnovski/mini.nvim/discussions/1873
 vim.keymap.set('n', '<leader><space>', function()
-  if fff_is_available then
-    fff.find_files()
-  else
-    MiniPick.registry.files()
-  end
+  MiniPick.registry.files()
 end, { desc = 'Search Files' })
 vim.keymap.set('n', '<leader>sF', function()
   vim.ui.input({
@@ -807,26 +793,20 @@ vim.keymap.set('n', '<leader>sF', function()
       return
     end
 
-    if fff_is_available then
-      fff.find_files_in_dir(input)
-      fff.change_indexing_directory(vim.uv.cwd())
-    else
-      MiniPick.registry.files()
-    end
+    MiniPick.registry.files(nil, {
+      source = {
+        cwd = input,
+      },
+    })
   end)
 end, { desc = '[S]earch [F]iles in specific directory' })
 vim.keymap.set('n', '<leader>sc', function()
   local config_path = vim.fn.stdpath 'config'
-  if fff_is_available then
-    fff.find_files_in_dir(config_path)
-    fff.change_indexing_directory(vim.uv.cwd())
-  else
-    MiniPick.registry.files(nil, {
-      source = {
-        cwd = config_path,
-      },
-    })
-  end
+  MiniPick.registry.files(nil, {
+    source = {
+      cwd = config_path,
+    },
+  })
 end, { desc = '[S]earch [C]onfig' })
 
 vim.keymap.set('n', '<leader>sh', function()

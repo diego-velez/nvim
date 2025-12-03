@@ -25,21 +25,12 @@ end)
 -- mini
 now(function()
   add {
-    source = 'diego-velez/fff.nvim',
-    hooks = {
-      post_install = build_with_rust,
-      post_checkout = build_with_rust,
-    },
-  }
-
-  add {
     name = 'mini.nvim',
     depends = {
       'Mofiqul/dracula.nvim.git',
       'nvim-treesitter/nvim-treesitter',
       'nvim-treesitter/nvim-treesitter-textobjects',
       'JoosepAlviste/nvim-ts-context-commentstring',
-      'diego-velez/fff.nvim',
     },
   }
 
