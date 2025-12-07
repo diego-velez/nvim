@@ -858,3 +858,8 @@ end, { desc = 'Show spellings suggestions' })
 later(function()
   require('mini.align').setup()
 end)
+
+-- NOTE: Start mini.cmdline configuration
+later(function()
+  require('mini.cmdline').setup()
+end)
