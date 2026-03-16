@@ -80,6 +80,7 @@ vim.g.netrw_bufsettings = 'nu rnu'
 -- Use treesitter for folding, and indentation
 vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
 vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+vim.wo.foldmethod = 'expr'
 -- Have all folds opened by default
 vim.o.foldenable = false
 
