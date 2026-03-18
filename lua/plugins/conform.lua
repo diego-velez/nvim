@@ -43,7 +43,7 @@ require('conform').setup {
     typescriptreact = { 'prettier' },
     typescript = { 'prettier' },
     javascript = { 'prettier' },
-    sql = { 'sqlfmt' },
+    sql = { 'pg_format' },
     java = { 'google-java-format', lsp_format = 'never' },
     terraform = { 'hclfmt' },
     json = { 'jq' },
