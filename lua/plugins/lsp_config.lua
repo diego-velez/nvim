@@ -227,6 +227,7 @@ local servers = {
       'templ',
     },
   },
+  -- WARN: You need to have `openssl-devel` to install asm_lsp
   asm_lsp = {
     single_file_support = true,
   },
