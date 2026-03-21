@@ -7,6 +7,7 @@ vim.opt_local.shiftwidth = 2
 ---Manages all the `typst watch` processes (value) per file (key)
 ---@type table<string, vim.SystemObj>
 local processes = {}
+local previews = {}
 local viewer = 'zathura'
 
 ---Manages all the stderr output (value) of a `typst watch` processes per file (key)
@@ -17,14 +18,21 @@ local processStderr = {}
 local function CloseProcess(file)
   local process = processes[file]
   if not process then
-    vim.notify('There is no running preview for ' .. file, vim.log.levels.WARN)
+    vim.notify('There is no Typst process running for ' .. file, vim.log.levels.WARN)
     return
   end
 
   if not process:is_closing() then
-    vim.notify('Closing preview for ' .. file, vim.log.levels.INFO)
+    vim.notify('Closing Typst watcher for ' .. file, vim.log.levels.INFO)
     process:kill(3) -- SIGQUIT
+
+    local preview = previews[file]
+    if preview ~= nil then
+      preview:kill(3) -- SIGQUIT
+    end
+
     processes[file] = nil
+    previews[file] = nil
     processStderr[file] = nil
   end
 end
@@ -37,6 +45,14 @@ local function OnStderr(file)
     if err ~= nil then
       vim.notify('Error running Typst watch for ' .. file, vim.log.levels.ERROR)
       CloseProcess(file)
+      return
+    end
+
+    -- The process was killed
+    if data == nil then
+      vim.notify('The process was killed!', vim.log.levels.WARN)
+      processes[file] = nil
+      previews[file] = nil
       return
     end
 
@@ -75,28 +91,52 @@ local function ShowStderr()
   end
 
   vim.api.nvim_buf_set_lines(buf_id, 0, -1, true, processStderr[file])
-
   vim.api.nvim_win_set_buf(0, buf_id)
 end
 
-local function RunPreview()
-  local file = vim.fn.expand '%:p'
-  if processes[file] ~= nil then
+local function RunPreview(file)
+  -- Do nothing if there already is a preview running
+  if previews[file] ~= nil then
     vim.notify('Preview already running!', vim.log.levels.WARN)
     return
   end
 
-  vim.notify('Launching preview for ' .. file, vim.log.levels.INFO)
+  local pdfFile = file:gsub('...$', 'pdf') -- Replace last three chars (typ) with pdf
+  vim.notify('Opening preview for ' .. pdfFile, vim.log.levels.INFO)
+  local cmd = { viewer, pdfFile }
+  local onStderr = function(err, data)
+    -- The process was killed
+    if err ~= nil or data == nil then
+      vim.notify('There was an error with the preview!', vim.log.levels.WARN)
+      processes[file] = nil
+      previews[file] = nil
+      return
+    end
+  end
+  local process = vim.system(cmd, { text = true, stderr = onStderr })
+  previews[file] = process
+end
+
+local function Run()
+  local file = vim.fn.expand '%:p'
+
+  -- If typst watcher already exists for this file,
+  -- then simply attempt to open a preview
+  if processes[file] ~= nil then
+    RunPreview(file)
+    return
+  end
+
+  vim.notify('Launching Typst watcher for ' .. file, vim.log.levels.INFO)
   local cmd = {
     'typst',
     'watch',
-    '--open',
-    viewer,
     '--diagnostic-format',
     'short',
     file,
   }
   local process = vim.system(cmd, { text = true, stderr = OnStderr(file) })
+  RunPreview(file)
   processes[file] = process
   processStderr[file] = {}
 end
@@ -111,5 +151,5 @@ vim.api.nvim_create_autocmd('ExitPre', {
   end,
 })
 
-vim.keymap.set('n', '<leader>r', RunPreview, { buffer = 0, desc = '[R]un Preview in ' .. viewer })
+vim.keymap.set('n', '<leader>r', Run, { buffer = 0, desc = '[R]un Preview in ' .. viewer })
 vim.keymap.set('n', '<leader>tr', ShowStderr, { buffer = 0, desc = 'Toggle [R]un Output Buffer' })
