@@ -18,6 +18,7 @@ require('nvim-treesitter').install {
   'python',
   'query',
   'regex',
+  'templ',
   'toml',
   'tsx',
   'typescript',
