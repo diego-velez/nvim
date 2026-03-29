@@ -24,8 +24,8 @@ vim.api.nvim_create_user_command(
   'ToggleConfig',
   ---@param _ vim.api.keyset.create_user_command.command_args
   function(_)
-    local config_on = vim.env.GIT_WORK_TREE ~= nil and vim.env.GIT_DIR ~= nil
-    if config_on then
+    local in_config = vim.env.GIT_WORK_TREE ~= nil and vim.env.GIT_DIR ~= nil
+    if in_config then
       vim.notify('Disabled .files environment', vim.log.levels.INFO)
       vim.env.GIT_WORK_TREE = nil
       vim.env.GIT_DIR = nil

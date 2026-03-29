@@ -1,38 +1,30 @@
-require 'config.keymaps'
-require 'config.options'
-require 'config.autocmds'
+_G.Config = {}
 
--- Clone 'mini.nvim' manually in a way that it gets managed by 'mini.deps'
-local path_package = vim.fn.stdpath 'data' .. '/site'
-local mini_path = path_package .. '/pack/deps/start/mini.nvim'
-if not vim.uv.fs_stat(mini_path) then
-  vim.notify('Installing mini.nvim', vim.log.levels.INFO)
-  vim.cmd.redraw()
+vim.pack.add { 'https://github.com/nvim-mini/mini.nvim' }
 
-  local clone_cmd = {
-    'git',
-    'clone',
-    '--filter=blob:none',
-    'https://github.com/nvim-mini/mini.nvim',
-    mini_path,
-  }
-  local out = vim.system(clone_cmd, { text = true }):wait()
+-- stylua: ignore start
+local misc = require('mini.misc')
+Config.now = function(f) misc.safely('now', f) end
+Config.later = function(f) misc.safely('later', f) end
+Config.now_if_args = vim.fn.argc(-1) > 0 and Config.now or Config.later
+-- stylua: ignore end
 
-  if out.code ~= 0 then
-    vim.api.nvim_echo({
-      { 'Failed to clone mini.nvim:\n', 'ErrorMsg' },
-      { out.stderr, 'WarningMsg' },
-      { '\nPress any key to exit...' },
-    }, true, {})
-    vim.fn.getchar()
-    return
-  end
+Config.now(function()
+  require 'config.check_dotfile_cwd'
+end)
 
-  vim.cmd 'packadd mini.nvim | helptags ALL'
-  vim.notify('Installed mini.nvim', vim.log.levels.INFO)
-  vim.cmd.redraw()
-end
+Config.now(function()
+  require 'config.keymaps'
+end)
 
-require('mini.deps').setup { path = { package = path_package } }
+Config.now(function()
+  require 'config.options'
+end)
 
-require 'plugins'
+Config.now(function()
+  require 'config.autocmds'
+end)
+
+Config.now(function()
+  require 'plugins'
+end)

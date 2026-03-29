@@ -1,6 +1,15 @@
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
+vim.api.nvim_set_hl(0, 'TextYank', { link = 'Search' })
+vim.api.nvim_create_autocmd('TextYankPost', {
+  group = vim.api.nvim_create_augroup('highlight-yank', { clear = true }),
+  desc = 'Highlight when yanking text',
+  callback = function()
+    vim.hl.on_yank { higroup = 'TextYank' }
+  end,
+})
+
 -- Smart cursor line
 local smart_cursor = vim.api.nvim_create_augroup('Smart cursor', { clear = true })
 vim.api.nvim_create_autocmd('InsertLeave', {
@@ -74,5 +83,13 @@ vim.api.nvim_create_autocmd('FileType', {
   pattern = 'qf',
   callback = function(event)
     vim.keymap.set('n', '<CR>', '<CR><CMD>cclose<CR>', { buffer = event.buf })
+  end,
+})
+
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup("Proper 'formatoptions'", {}),
+  desc = "Proper 'formatoptions'",
+  callback = function()
+    vim.cmd 'setlocal formatoptions-=c formatoptions-=o'
   end,
 })

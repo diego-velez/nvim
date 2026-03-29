@@ -11,7 +11,7 @@ require('mini.files').setup {
     mark_goto = "'",
     reset = '<BS>',
     reveal_cwd = '@',
-    show_help = '?',
+    show_help = 'g?',
     synchronize = '<CR>',
     trim_left = '<',
     trim_right = '>',
@@ -23,6 +23,21 @@ require('mini.files').setup {
     max_number = 3,
   },
 }
+
+-- Add common bookmarks.
+-- `'c` to navigate into your config directory
+-- `g?` to see available bookmarks
+vim.api.nvim_create_autocmd('User', {
+  group = augroup,
+  pattern = 'MiniFilesExplorerOpen',
+  desc = 'Add bookmarks to mini.files',
+  callback = function()
+    MiniFiles.set_bookmark('c', vim.fn.stdpath 'config', { desc = 'Config' })
+    local vimpack_plugins = vim.fn.stdpath 'data' .. '/site/pack/core/opt'
+    MiniFiles.set_bookmark('p', vimpack_plugins, { desc = 'Plugins' })
+    MiniFiles.set_bookmark('w', vim.fn.getcwd, { desc = 'Working directory' })
+  end,
+})
 
 -- Auto-expand empty & nested dirs
 -- See https://github.com/echasnovski/mini.nvim/discussions/1184
@@ -49,16 +64,19 @@ local go_in_and_expand = function()
   end
 end
 
---- @param open_current_file boolean If true, will open mini.files in the current file, otherwise opents on cwd.
+--- @param open_current_file boolean If true, will open mini.files in the current file,
+--- otherwise opents on cwd.
 local mini_files_toggle = function(open_current_file)
-  if not MiniFiles.close() then
-    local current_file = vim.api.nvim_buf_get_name(0)
-    -- Needed for starter dashboard
-    if vim.fn.filereadable(current_file) == 0 or not open_current_file then
-      MiniFiles.open()
-    else
-      MiniFiles.open(current_file, true)
-    end
+  if MiniFiles.close() then
+    return
+  end
+
+  local current_file = vim.api.nvim_buf_get_name(0)
+  -- Needed for starter dashboard
+  if vim.fn.filereadable(current_file) == 0 or not open_current_file then
+    MiniFiles.open()
+  else
+    MiniFiles.open(current_file, true)
   end
 end
 vim.keymap.set('n', '<leader>e', function()

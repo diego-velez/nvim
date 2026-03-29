@@ -1,40 +1,16 @@
-local add, now, later = MiniDeps.add, MiniDeps.now, MiniDeps.later
-local now_if_args = vim.fn.argc(-1) > 0 and now or later
-
----@param args { path: string, name: string, source: string }
-local function build_with_rust(args)
-  local cmd = { 'rustup', 'run', 'nightly', 'cargo', 'build', '--release' }
-  ---@type vim.SystemOpts
-  local opts = { cwd = args.path, text = true }
-
-  vim.notify('Building ' .. args.name, vim.log.levels.INFO)
-  local output = vim.system(cmd, opts):wait()
-  if output.code ~= 0 then
-    vim.notify('Failed to build ' .. args.name .. '\n' .. output.stderr, vim.log.levels.ERROR)
-  else
-    vim.notify('Built ' .. args.name, vim.log.levels.INFO)
-  end
-end
-
--- Other Neovim config stuff
-later(function()
-  require 'config.other'
-  require 'config.check_dotfile_cwd'
-end)
+local add, now, later = vim.pack.add, Config.now, Config.later
+local now_if_args = Config.now_if_args
 
 -- mini
 now(function()
   add {
-    name = 'mini.nvim',
-    depends = {
-      'Mofiqul/dracula.nvim.git',
-      'nvim-treesitter/nvim-treesitter',
-      'nvim-treesitter/nvim-treesitter-textobjects',
-      'JoosepAlviste/nvim-ts-context-commentstring',
-    },
+    'https://github.com/Mofiqul/dracula.nvim.git',
+    'https://github.com/nvim-treesitter/nvim-treesitter',
+    'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
+    'https://github.com/folke/ts-comments.nvim',
   }
 
-  add 'p00f/alabaster.nvim'
+  add { 'https://github.com/p00f/alabaster.nvim' }
 
   require 'plugins.mini'
   require 'plugins.colorschemes'
@@ -44,85 +20,85 @@ end)
 
 -- Treesitter
 now_if_args(function()
-  add {
-    source = 'nvim-treesitter/nvim-treesitter',
-    checkout = 'main',
-    hooks = {
-      post_checkout = function()
-        vim.cmd.TSUpdate()
-      end,
-    },
-  }
+  local plugin_name = 'nvim-treesitter'
+
+  -- Define hook to update tree-sitter parsers after plugin is updated
+  vim.api.nvim_create_autocmd('PackChanged', {
+    group = vim.api.nvim_create_augroup('Update treesitter', {}),
+    callback = function(ev)
+      local name, kind = ev.data.spec.name, ev.data.kind
+      if name ~= plugin_name and kind ~= 'update' then
+        return
+      end
+
+      if not ev.data.active then
+        vim.cmd.packadd(plugin_name)
+      end
+
+      vim.cmd.TSUpdate()
+    end,
+    desc = ':TSUpdate',
+  })
 
   add {
-    source = 'nvim-treesitter/nvim-treesitter-textobjects',
-    checkout = 'main',
+    'https://github.com/nvim-treesitter/nvim-treesitter',
+    'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
+    'https://github.com/nvim-treesitter/nvim-treesitter-context',
+    'https://github.com/folke/ts-comments.nvim',
   }
-
-  add 'nvim-treesitter/nvim-treesitter-context'
-  add 'folke/ts-comments.nvim'
 
   require 'plugins.treesitter'
 end)
 
 -- LSP
-later(function()
+now_if_args(function()
   add {
-    source = 'neovim/nvim-lspconfig',
-    depends = {
-      'mason-org/mason.nvim',
-      'mason-org/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
-      'folke/lazydev.nvim',
-      'DrKJeff16/wezterm-types',
-      'saecki/live-rename.nvim',
-      'andrewferrier/debugprint.nvim',
-    },
+    'https://github.com/neovim/nvim-lspconfig',
+    'https://github.com/mason-org/mason.nvim',
+    'https://github.com/mason-org/mason-lspconfig.nvim',
+    'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim',
+    'https://github.com/folke/lazydev.nvim',
+    'https://github.com/DrKJeff16/wezterm-types',
+    'https://github.com/saecki/live-rename.nvim',
   }
 
   add {
-    source = 'JavaHello/spring-boot.nvim',
-    checkout = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
+    {
+      src = 'https://github.com/JavaHello/spring-boot.nvim',
+      version = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
+    },
+    'https://github.com/MunifTanjim/nui.nvim',
+    'https://github.com/mfussenegger/nvim-dap',
+
+    'https://github.com/nvim-java/nvim-java',
   }
 
-  add {
-    source = 'nvim-java/nvim-java',
-    depends = {
-      'nvim-java/lua-async-await',
-      'nvim-java/nvim-java-refactor',
-      'nvim-java/nvim-java-core',
-      'nvim-java/nvim-java-test',
-      'nvim-java/nvim-java-dap',
-      'MunifTanjim/nui.nvim',
-      'mfussenegger/nvim-dap',
-      'JavaHello/spring-boot.nvim',
-    },
-  }
+  require('java').setup()
+  vim.lsp.enable 'jdtls'
 
   require 'plugins.lsp_config'
 end)
 
 -- Formatter
 later(function()
-  add 'stevearc/conform.nvim'
+  add { 'https://github.com/stevearc/conform.nvim' }
 
   require 'plugins.conform'
 end)
 
 -- Linter
-later(function()
-  add 'mfussenegger/nvim-lint'
+now_if_args(function()
+  add { 'https://github.com/mfussenegger/nvim-lint' }
 
   require 'plugins.lint'
 end)
 
 -- Git integration
 later(function()
-  add 'lewis6991/gitsigns.nvim'
-
   add {
-    source = 'kdheepak/lazygit.nvim',
-    depends = { 'nvim-lua/plenary.nvim' },
+    'https://github.com/lewis6991/gitsigns.nvim',
+    'https://github.com/kdheepak/lazygit.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
   }
 
   require 'plugins.git'
@@ -130,8 +106,7 @@ end)
 
 -- Autopair stuff
 later(function()
-  add 'windwp/nvim-autopairs'
-  add 'windwp/nvim-ts-autotag'
+  add { 'https://github.com/windwp/nvim-autopairs', 'https://github.com/windwp/nvim-ts-autotag' }
 
   require('nvim-autopairs').setup()
   require('nvim-ts-autotag').setup()
@@ -166,8 +141,8 @@ end)
 -- Support TODO comments
 later(function()
   add {
-    source = 'folke/todo-comments.nvim',
-    depends = { 'nvim-lua/plenary.nvim' },
+    'https://github.com/folke/todo-comments.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
   }
 
   require 'plugins.todo'
@@ -175,14 +150,14 @@ end)
 
 -- Configure windows
 later(function()
-  add 'folke/edgy.nvim'
+  add { 'https://github.com/folke/edgy.nvim' }
 
   require 'plugins.edgy'
 end)
 
 -- Search and replace
 later(function()
-  add 'MagicDuck/grug-far.nvim'
+  add { 'https://github.com/MagicDuck/grug-far.nvim' }
 
   require 'plugins.grug-far'
 end)
@@ -190,11 +165,10 @@ end)
 -- Typescript stuff
 later(function()
   add {
-    source = 'pmizio/typescript-tools.nvim',
-    depends = { 'nvim-lua/plenary.nvim' },
+    'https://github.com/pmizio/typescript-tools.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
+    'https://github.com/dmmulroy/ts-error-translator.nvim',
   }
-
-  add 'dmmulroy/ts-error-translator.nvim'
 
   require('typescript-tools').setup {}
   require('ts-error-translator').setup()
@@ -203,29 +177,21 @@ end)
 -- Support markdown
 later(function()
   add {
-    source = 'MeanderingProgrammer/render-markdown.nvim',
-    depends = { 'nvim-treesitter/nvim-treesitter', 'nvim-mini/mini.nvim' },
+    'https://github.com/MeanderingProgrammer/render-markdown.nvim',
+    'https://github.com/nvim-treesitter/nvim-treesitter',
+    'https://github.com/nvim-mini/mini.nvim',
   }
 
   require('render-markdown').setup()
 end)
 
--- Better LISP like language support
-later(function()
-  add {
-    source = 'eraserhd/parinfer-rust',
-    hooks = {
-      post_install = build_with_rust,
-      post_checkout = build_with_rust,
-    },
-  }
-end)
-
 -- Task runner
 later(function()
   add {
-    source = 'diego-velez/overseer.nvim',
-    checkout = 'task_output_filetype',
+    {
+      src = 'https://github.com/diego-velez/overseer.nvim',
+      version = 'task_output_filetype',
+    },
   }
 
   require 'plugins.overseer'
@@ -234,8 +200,8 @@ end)
 -- My spear
 later(function()
   add {
-    source = 'diego-velez/spear.nvim',
-    depends = { 'nvim-lua/plenary.nvim' },
+    'https://github.com/diego-velez/spear.nvim',
+    'https://github.com/nvim-lua/plenary.nvim',
   }
 
   require 'plugins.spear'
@@ -243,7 +209,7 @@ end)
 
 -- Undo tree
 later(function()
-  add 'mbbill/undotree'
+  add { 'https://github.com/mbbill/undotree' }
 
   vim.g.undotree_WindowLayout = 2
   vim.g.undotree_SetFocusWhenToggle = 1
@@ -251,30 +217,23 @@ later(function()
   vim.keymap.set('n', '<leader>tu', vim.cmd.UndotreeToggle, { desc = 'Toggle [u]ndo tree' })
 end)
 
--- Better yanking
-later(function()
-  add 'gbprod/yanky.nvim'
-
-  require 'plugins.yanky'
-end)
-
 -- Automatically set indentation
 later(function()
-  add 'NMAC427/guess-indent.nvim'
+  add { 'https://github.com/NMAC427/guess-indent.nvim' }
 
   require('guess-indent').setup()
 end)
 
 -- Cool cursor animations
 later(function()
-  add 'sphamba/smear-cursor.nvim'
+  add { 'https://github.com/sphamba/smear-cursor.nvim' }
 
   require('smear_cursor').setup()
 end)
 
 -- HTTP request support
 later(function()
-  add 'mistweaverco/kulala.nvim'
+  add { 'https://github.com/mistweaverco/kulala.nvim' }
 
   local kulala = require 'kulala'
   kulala.setup()
@@ -298,7 +257,7 @@ end)
 
 -- Images in the terminal
 later(function()
-  add '3rd/image.nvim'
+  add { 'https://github.com/3rd/image.nvim' }
 
   local image = require 'image'
   image.setup()

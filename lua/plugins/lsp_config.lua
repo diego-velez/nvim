@@ -17,44 +17,9 @@ require('lazydev').setup {
   },
 }
 
-vim.g.was_setup = false
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('DVT LSP Config', { clear = true }),
   callback = function(event)
-    if not vim.g.was_setup then
-      require('debugprint').setup {
-
-        keymaps = {
-          normal = {
-            plain_below = '',
-            plain_above = '',
-            variable_below = '',
-            variable_above = '',
-            variable_below_alwaysprompt = '',
-            variable_above_alwaysprompt = '',
-            surround_plain = '',
-            surround_variable = '',
-            surround_variable_alwaysprompt = '',
-            textobj_below = '',
-            textobj_above = '',
-            textobj_surround = '',
-            toggle_comment_debug_prints = '',
-            delete_debug_prints = '',
-          },
-          insert = {
-            plain = '',
-            variable = '',
-          },
-          visual = {
-            variable_below = '',
-            variable_above = '',
-          },
-        },
-        display_counter = false,
-      }
-      vim.g.was_setup = true
-    end
-
     local map = function(keys, func, desc)
       vim.keymap.set('n', keys, func, { buffer = event.buf, desc = desc })
     end
@@ -87,14 +52,22 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end, 'LSP: [R]ename')
 
     map('h', vim.lsp.buf.hover, 'LSP: [H]over')
-    vim.keymap.set('n', 'K', '<nop>')
+    vim.keymap.set('n', 'K', '<nop>', { buf = event.buf })
 
     if
       client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, event.buf)
     then
       vim.notify 'Codelens Supported'
       map('<leader>cc', vim.lsp.codelens.run, 'LSP: [C]odelens')
-      map('<leader>cC', vim.lsp.codelens.refresh, 'LSP: Refresh [C]odelens')
+      map('<leader>tC', function()
+        vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
+
+        if vim.lsp.codelens.is_enabled() then
+          vim.notify('Codelens enabled', vim.log.levels.INFO)
+        else
+          vim.notify('Codelens disabled', vim.log.levels.INFO)
+        end
+      end, 'LSP: [T]oggle [C]odelens')
     end
 
     if
@@ -111,61 +84,11 @@ vim.api.nvim_create_autocmd('LspAttach', {
         end
       end, 'LSP: [T]oggle [I]nlay Hints')
     end
-
-    -- [H]ere aka we are *here* in the code
-    map('g?h', function()
-      require('debugprint').debugprint {}
-    end, 'We are [h]ere (below)')
-    map('g?H', function()
-      require('debugprint').debugprint { above = true }
-    end, 'We are [h]ere (above)')
-
-    -- [V]ariable aka this is the value of said variable
-    map('g?v', function()
-      require('debugprint').debugprint { variable = true }
-    end, 'This [v]ariable (below)')
-    map('g?V', function()
-      require('debugprint').debugprint { above = true, variable = true }
-    end, 'This [v]ariable (above)')
-
-    -- [P]rompt aka we want to see the value of user input variable
-    map('g?p', function()
-      require('debugprint').debugprint { variable = true, ignore_treesitter = true }
-    end, '[P]rompt for variable (below)')
-    map('g?P', function()
-      require('debugprint').debugprint { above = true, variable = true, ignore_treesitter = true }
-    end, '[P]rompt for variable (above)')
-
-    -- Other operations
-    map('g?d', function()
-      require('debugprint.printtag_operations').deleteprints()
-    end, '[D]elete all debugprint in current buffer')
-    map('g?t', function()
-      require('debugprint.printtag_operations').toggle_comment_debugprints()
-    end, '[T]oggle debugprint statements')
-    map('g?s', function()
-      MiniPick.builtin.grep({ pattern = 'DEBUGPRINT:' }, nil)
-    end, '[S]earch all debugprint statements')
   end,
 })
 
----@type lsp.ClientCapabilities
-local capabilities_override = {
-  textDocument = {
-    completion = {
-      completionItem = {
-        snippetSupport = false,
-      },
-    },
-  },
-}
-local capabilities = vim.tbl_deep_extend(
-  'force',
-  vim.lsp.protocol.make_client_capabilities(),
-  MiniCompletion.get_lsp_capabilities(),
-  capabilities_override
-)
-vim.lsp.config('*', { capabilities = capabilities })
+-- Configure Java specific stuff separately
+require('java').setup {}
 
 -- Kotlin LSP needs JDK 17 or greater
 local java_output = vim.system({ 'mise', 'where', 'java@17' }, { text = true }):wait()
@@ -245,15 +168,12 @@ local servers = {
     },
   },
   qmlls = {},
-}
-
--- Configure Java specific stuff separately
-require('java').setup {}
-require('lspconfig').jdtls.setup {
-  handlers = {
-    -- By assigning an empty function, you can remove the notifications
-    -- printed to the cmd
-    ['$/progress'] = function() end,
+  jdtls = {
+    handlers = {
+      -- By assigning an empty function, you can remove the notifications
+      -- printed to the cmd
+      ['$/progress'] = function() end,
+    },
   },
 }
 

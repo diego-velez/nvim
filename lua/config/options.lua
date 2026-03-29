@@ -1,15 +1,9 @@
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
-
 -- Make line numbers default
 vim.o.number = true
 -- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
 vim.o.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
@@ -102,7 +96,29 @@ vim.o.completeopt = 'menuone,noselect,fuzzy'
 vim.o.complete = '.,w,b,u,t'
 vim.o.shortmess = 'tTWocFCO'
 
-vim.o.formatoptions = 'croqnljp'
+-- vim.o.formatoptions = 'croqnljp'
+vim.o.formatoptions = 'rqnljp'
 
 -- Treat dash as 'word' textobject part
 vim.o.iskeyword = '@,48-57,_,192-255,-'
+
+-- Configure diagnostics
+Config.later(function()
+  ---@type vim.diagnostic.Opts
+  vim.diagnostic.config {
+    severity_sort = true,
+    float = { border = 'rounded', source = 'if_many' },
+    signs = {
+      priority = 9999,
+      severity = { min = vim.diagnostic.severity.WARN, max = vim.diagnostic.severity.ERROR },
+    },
+    underline = {
+      severity = { min = vim.diagnostic.severity.HINT, max = vim.diagnostic.severity.ERROR },
+    },
+    virtual_text = {
+      source = 'if_many',
+      spacing = 2,
+      severity = { min = vim.diagnostic.severity.ERROR, max = vim.diagnostic.severity.ERROR },
+    },
+  }
+end)

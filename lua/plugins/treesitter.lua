@@ -1,5 +1,8 @@
 -- Auto-install treesitter parsers
-require('nvim-treesitter').install {
+-- Define languages which will have parsers installed and auto enabled
+-- After changing this, restart Neovim once to install necessary parsers. Wait
+-- for the installation to finish before opening a file for added language(s).
+local languages = {
   'bash',
   'c',
   'diff',
@@ -8,7 +11,6 @@ require('nvim-treesitter').install {
   'javascript',
   'jsdoc',
   'json',
-  'jsonc',
   'lua',
   'luadoc',
   'luap',
@@ -27,12 +29,31 @@ require('nvim-treesitter').install {
   'vimdoc',
   'xml',
   'yaml',
+  -- To see available languages:
+  -- - Execute `:=require('nvim-treesitter').get_available()`
+  -- - Visit 'SUPPORTED_LANGUAGES.md' file at
+  --   https://github.com/nvim-treesitter/nvim-treesitter/blob/main
 }
+local isnt_installed = function(lang)
+  return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
+end
+local to_install = vim.tbl_filter(isnt_installed, languages)
+if #to_install > 0 then
+  require('nvim-treesitter').install(to_install)
+end
 
+-- Enable treesitter after opening a file for a target language
+local filetypes = {}
+for _, lang in ipairs(languages) do
+  for _, ft in ipairs(vim.treesitter.language.get_filetypes(lang)) do
+    table.insert(filetypes, ft)
+  end
+end
 vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('Treesitter Highlighting', { clear = true }),
-  callback = function()
-    pcall(vim.treesitter.start)
+  group = vim.api.nvim_create_augroup('Start treesitter', { clear = true }),
+  pattern = filetypes,
+  callback = function(ev)
+    vim.treesitter.start(ev.buf)
   end,
 })
 

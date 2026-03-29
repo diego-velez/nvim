@@ -1,5 +1,5 @@
-local now, later = MiniDeps.now, MiniDeps.later
-local now_if_args = vim.fn.argc(-1) > 0 and now or later
+local now, later = Config.now, Config.later
+local now_if_args = Config.now_if_args
 
 -- NOTE: Start mini.icons configuration
 now(function()
@@ -35,6 +35,11 @@ end)
 -- NOTE: Start mini.statusline configuration
 now_if_args(function()
   require 'plugins.mini_statusline'
+end)
+
+-- NOTE: Start mini.tabline configuration
+now_if_args(function()
+  require('mini.tabline').setup()
 end)
 
 -- NOTE: Start mini.pick configuration
@@ -77,7 +82,6 @@ end)
 -- NOTE: Start mini.ai configuration
 later(function()
   local ai = require 'mini.ai'
-  local gen_ai_spec = MiniExtra.gen_ai_spec
   ai.setup {
     n_lines = 500,
     custom_textobjects = {
@@ -94,13 +98,13 @@ later(function()
       f = ai.gen_spec.treesitter { a = '@function.outer', i = '@function.inner' },
 
       -- [B]uffer
-      b = gen_ai_spec.buffer(),
+      b = MiniExtra.gen_ai_spec.buffer(),
 
       -- [U]sage
       u = ai.gen_spec.function_call(),
 
       -- [D]igits
-      d = gen_ai_spec.number(),
+      d = MiniExtra.gen_ai_spec.number(),
     },
   }
 end)
@@ -135,17 +139,10 @@ later(function()
     },
   }
 
-  local lspRefTextHl = vim.api.nvim_get_hl(0, { name = 'LspReferenceText', link = false })
-  vim.api.nvim_set_hl(
-    0,
-    'MiniJump',
-    { fg = lspRefTextHl.fg, bg = lspRefTextHl.bg, underline = true }
-  )
-
   -- To determine if we're currently in ',' backward F/T state
   local in_backward = false
 
-  ---MiniJump to the opposite direction
+  --MiniJump to the opposite direction
   local function jump_opposite(target, backward, till)
     if backward then
       MiniJump.jump(target, false, till)
@@ -197,6 +194,14 @@ later(function()
 
     MiniJump.jump(target, backward, till)
   end)
+
+  -- Set highlight
+  local lspRefTextHl = vim.api.nvim_get_hl(0, { name = 'LspReferenceText', link = false })
+  vim.api.nvim_set_hl(
+    0,
+    'MiniJump',
+    { fg = lspRefTextHl.fg, bg = lspRefTextHl.bg, underline = true }
+  )
 
   local augroup = vim.api.nvim_create_augroup('MiniJump Highlighting', { clear = true })
   vim.api.nvim_create_autocmd('User', {
@@ -259,19 +264,7 @@ end)
 
 -- NOTE: Start mini.comment configuration
 later(function()
-  require('ts_context_commentstring').setup {
-    opts = {
-      enable_autocmd = false,
-    },
-  }
-  require('mini.comment').setup {
-    options = {
-      custom_commentstring = function()
-        return require('ts_context_commentstring.internal').calculate_commentstring()
-          or vim.bo.commentstring
-      end,
-    },
-  }
+  require('mini.comment').setup()
 end)
 
 -- NOTE: Start mini.clue configuration
@@ -516,37 +509,21 @@ end)
 
 -- NOTE: Start mini.bracketed configuration
 later(function()
-  -- stylua: ignore start
-  require('mini.bracketed').setup {
-    buffer     = { suffix = '',  options = {} },
-    comment    = { suffix = '',  options = {} },
-    conflict   = { suffix = '',  options = {} },
-    diagnostic = { suffix = '',  options = {} },
-    file       = { suffix = 'f', options = {} },
-    indent     = { suffix = '',  options = {} },
-    jump       = { suffix = 'j', options = {} },
-    location   = { suffix = '',  options = {} },
-    oldfile    = { suffix = 'o', options = {} },
-    quickfix   = { suffix = '',  options = {} },
-    treesitter = { suffix = '',  options = {} },
-    undo       = { suffix = '',  options = {} },
-    window     = { suffix = '',  options = {} },
-    yank       = { suffix = '',  options = {} },
-  }
-  -- stylua: ignore end
+  require('mini.bracketed').setup()
 end)
 
 -- NOTE: Start mini.snippets configuration
 later(function()
-  local gen_loader = require('mini.snippets').gen_loader
-  require('mini.snippets').setup {
+  local snippets = require 'mini.snippets'
+  local config_path = vim.fn.stdpath 'config'
+  snippets.setup {
     snippets = {
       -- Load custom file with global snippets first (adjust for Windows)
-      gen_loader.from_file '~/.config/nvim/snippets/global.json',
+      snippets.gen_loader.from_file(config_path .. '/snippets/global.json'),
 
       -- Load snippets based on current language by reading files from
       -- "snippets/" subdirectories from 'runtimepath' directories.
-      gen_loader.from_lang(),
+      snippets.gen_loader.from_lang(),
     },
     mappings = {
       -- Expand snippet at cursor position. Created globally in Insert mode.
@@ -567,8 +544,7 @@ later(function()
 
   local map_multistep = require('mini.keymap').map_multistep
 
-  local tab_steps = { 'minisnippets_expand', 'minisnippets_next' }
-  map_multistep('i', '<tab>', tab_steps)
+  map_multistep('i', '<tab>', { 'minisnippets_expand', 'minisnippets_next' })
   map_multistep('i', '<S-tab>', { 'minisnippets_prev' })
 
   vim.api.nvim_create_autocmd('User', {
@@ -590,7 +566,11 @@ later(function()
 end)
 
 -- NOTE: Start mini.completion configuration
-later(function()
+now_if_args(function()
+  local process_items_opts = { kind_priority = { Text = -1, Snippet = 99 } }
+  local process_items = function(items, base)
+    return MiniCompletion.default_process_items(items, base, process_items_opts)
+  end
   require('mini.completion').setup {
     delay = {
       completion = 0,
@@ -605,6 +585,11 @@ later(function()
         border = 'rounded',
       },
     },
+    lsp_completion = {
+      source_func = 'omnifunc',
+      auto_setup = false,
+      process_items = process_items,
+    },
     -- Buffer words completion
     -- See `:h ins-completion`
     fallback_action = '<C-n>',
@@ -613,6 +598,32 @@ later(function()
       force_fallback = '<C-CR>',
     },
   }
+
+  vim.api.nvim_create_autocmd('LspAttach', {
+    group = vim.api.nvim_create_augroup('mini.completion setup', {}),
+    desc = "Set 'omnifunc'",
+    callback = function(ev)
+      vim.bo[ev.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
+    end,
+  })
+
+  ---@type lsp.ClientCapabilities
+  local capabilities_override = {
+    textDocument = {
+      completion = {
+        completionItem = {
+          snippetSupport = false,
+        },
+      },
+    },
+  }
+  local capabilities = vim.tbl_deep_extend(
+    'force',
+    vim.lsp.protocol.make_client_capabilities(),
+    MiniCompletion.get_lsp_capabilities(),
+    capabilities_override
+  )
+  vim.lsp.config('*', { capabilities = capabilities })
 
   -- I want to use Ctrl+n to trigger completion and cycle to next completion too
   require('mini.keymap').map_multistep('i', '<C-n>', {
@@ -639,6 +650,7 @@ later(function()
     return '<up>'
   end, { expr = true })
 
+  -- Auto traverse filepaths in autocomplete
   local function simulate_keypress(key)
     local termcodes = vim.api.nvim_replace_termcodes(key, true, false, true)
     vim.api.nvim_feedkeys(termcodes, 'm', false)
@@ -656,7 +668,42 @@ later(function()
   })
 end)
 
--- Keymaps
+-- NOTE: Start mini.align configuration
+later(function()
+  require('mini.align').setup()
+end)
+
+-- NOTE: Start mini.cmdline configuration
+later(function()
+  require('mini.cmdline').setup()
+end)
+
+-- NOTE: Start mini.move configuration
+later(function()
+  require('mini.move').setup {
+    mappings = {
+      left = '<',
+      right = '>',
+      down = 'k',
+      up = 'j',
+
+      line_left = '<',
+      line_right = '>',
+      line_down = 'k',
+      line_up = 'j',
+    },
+  }
+end)
+
+-- NOTE: Start mini.misc configuration
+now_if_args(function()
+  require('mini.misc').setup()
+
+  MiniMisc.setup_restore_cursor()
+  MiniMisc.setup_termbg_sync()
+end)
+
+--- Keymaps ---
 
 vim.keymap.set('n', '<leader>th', function()
   MiniHipatterns.toggle(0)
@@ -853,13 +900,3 @@ vim.keymap.set('n', 'z=', function()
     },
   })
 end, { desc = 'Show spellings suggestions' })
-
--- NOTE: Start mini.align configuration
-later(function()
-  require('mini.align').setup()
-end)
-
--- NOTE: Start mini.cmdline configuration
-later(function()
-  require('mini.cmdline').setup()
-end)

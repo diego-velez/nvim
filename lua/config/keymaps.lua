@@ -1,25 +1,14 @@
--- [[ Basic Keymaps ]]
---  See `:help vim.keymap.set()`
-
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Clear highlights on search when pressing <Esc> in normal mode
---  See `:help hlsearch`
 vim.keymap.set('n', '<ESC>', '<cmd>nohlsearch<CR>')
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
---
--- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
--- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
------- DVT's keymaps -------
 -- Keep cursor centered
 vim.keymap.set('n', '<C-d>', function()
   vim.cmd.normal { '\4', bang = true }
@@ -46,11 +35,9 @@ vim.keymap.set('n', 'G', function()
   MiniAnimate.execute_after('scroll', 'normal! zz')
 end)
 
--- Move line up or down
-vim.keymap.set('n', 'j', "v:move '<-2<CR>gv=gv<ESC>")
-vim.keymap.set('n', 'k', "v:move '>+1<CR>gv=gv<ESC>")
-vim.keymap.set('x', 'j', ":move '<-2<CR>gv=gv")
-vim.keymap.set('x', 'k', ":move '>+1<CR>gv=gv")
+-- Paste linewise before/after current line
+vim.keymap.set('n', '[p', '<cmd>exe "iput! " . v:register<CR>', { desc = 'Paste above' })
+vim.keymap.set('n', ']p', '<cmd>exe "iput " . v:register<CR>', { desc = 'Paste below' })
 
 -- Have cursor stay in place when joining lines together
 vim.keymap.set('n', 'J', 'mzJ`z')
@@ -111,11 +98,6 @@ vim.keymap.set(
   { desc = '[R]edraw' }
 )
 
--- Add undo break-points
-vim.keymap.set('i', ',', ',<c-g>u')
-vim.keymap.set('i', '.', '.<c-g>u')
-vim.keymap.set('i', ';', ';<c-g>u')
-
 -- Edit macros
 vim.keymap.set(
   'n',
@@ -123,10 +105,6 @@ vim.keymap.set(
   ":<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>",
   { desc = 'Edit [M]acros' }
 )
-
--- Shift lines without losing selection
-vim.keymap.set('x', '<', '<gv')
-vim.keymap.set('x', '>', '>gv')
 
 -- Use make by default
 -- stylua: ignore
