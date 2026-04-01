@@ -74,16 +74,13 @@ vim.keymap.set(
   { desc = 'Add Comment Above' }
 )
 
--- Tabs
-vim.keymap.set('n', '<leader><tab><tab>', '<cmd>tabnew<cr>', { desc = 'New Tab' })
-vim.keymap.set('n', '<leader><tab>w', '<cmd>tabclose<cr>', { desc = 'Close Tab' })
-vim.keymap.set('n', '<leader><tab>o', '<cmd>tabonly<cr>', { desc = 'Close [O]ther Tabs' })
-vim.keymap.set('n', '<leader><tab>n', '<cmd>tabnext<cr>', { desc = '[N]ext Tab' })
-vim.keymap.set('n', ']<tab>', '<cmd>tabnext<cr>', { desc = '[N]ext Tab' })
-vim.keymap.set('n', '<leader><tab>p', '<cmd>tabprevious<cr>', { desc = '[P]revious Tab' })
-vim.keymap.set('n', '[<tab>', '<cmd>tabprevious<cr>', { desc = '[P]revious Tab' })
-vim.keymap.set('n', '<leader><tab>f', '<cmd>tabfirst<cr>', { desc = '[F]irst Tab' })
-vim.keymap.set('n', '<leader><tab>l', '<cmd>tablast<cr>', { desc = '[L]ast Tab' })
+-- Buffers
+local new_scratch_buffer = function()
+  vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(true, true))
+end
+vim.keymap.set('n', '<leader>bn', new_scratch_buffer, { desc = 'New Buffer' })
+vim.keymap.set('n', '<leader>bd', '<cmd>lua MiniBufremove.delete()<cr>', { desc = 'Delete Buffer' })
+vim.keymap.set('n', '<leader>ba', '<cmd>b#<cr>', { desc = 'Alternate Buffer' })
 
 -- [U]I keymaps
 vim.keymap.set('n', '<leader>ui', vim.show_pos, { desc = 'Inspect Pos' })
