@@ -14,7 +14,7 @@ I want minimal mental overhead, with as much functionality as possible, for this
 
 | Purpose         | Plugin                 |
 | --------------- | ---------------------- |
-| Package manager | mini.deps              |
+| Package manager | vim.pack (builtin)     |
 | File Browser    | mini.files             |
 | Picker          | mini.pick              |
 | Startup Screen  | mini.starter           |
