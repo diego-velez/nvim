@@ -1,6 +1,7 @@
 require('overseer').setup {
   templates = {
     'builtin',
+    'mise',
     'java',
     'skaffold',
   },
