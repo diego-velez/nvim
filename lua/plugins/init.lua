@@ -1,5 +1,8 @@
 local add, now, later = vim.pack.add, Config.now, Config.later
 local now_if_args = Config.now_if_args
+local nmap = function(lhs, rhs, desc)
+  vim.keymap.set('n', lhs, rhs, { desc = desc })
+end
 
 -- mini
 now(function()
@@ -209,12 +212,12 @@ end)
 
 -- Undo tree
 later(function()
-  add { 'https://github.com/mbbill/undotree' }
-
-  vim.g.undotree_WindowLayout = 2
-  vim.g.undotree_SetFocusWhenToggle = 1
-
-  vim.keymap.set('n', '<leader>tu', vim.cmd.UndotreeToggle, { desc = 'Toggle [u]ndo tree' })
+  vim.cmd.packadd 'nvim.undotree'
+  nmap(
+    '<leader>tu',
+    '<cmd>lua require("undotree").open({command="leftabove 40vnew"})<cr>',
+    'Toggle [u]ndo tree'
+  )
 end)
 
 -- Automatically set indentation
@@ -244,17 +247,17 @@ later(function()
     group = vim.api.nvim_create_augroup('DVT Kulala', { clear = true }),
     pattern = { 'http', 'rest' },
     callback = function(args)
-      local nmap = function(lhs, rhs, desc)
+      local map = function(lhs, rhs, desc)
         vim.keymap.set('n', lhs, rhs, { buffer = args.buf, desc = desc })
       end
 
-      nmap('<leader>r', '', '[R]un' )
-      nmap('<leader>rs', kulala.run, '[S]end request' )
-      nmap('<leader>ra', kulala.run_all, 'Send [A]ll requests' )
-      nmap('<leader>rp', kulala.replay, 'Run [P]revious' )
-      nmap('<leader>ru', kulala.toggle_view, 'Toggle UI' )
-      nmap('{', kulala.jump_prev, 'Previous Request' )
-      nmap('}', kulala.jump_next, 'Next Request' )
+      map('<leader>r', '', '[R]un' )
+      map('<leader>rs', kulala.run, '[S]end request' )
+      map('<leader>ra', kulala.run_all, 'Send [A]ll requests' )
+      map('<leader>rp', kulala.replay, 'Run [P]revious' )
+      map('<leader>ru', kulala.toggle_view, 'Toggle UI' )
+      map('{', kulala.jump_prev, 'Previous Request' )
+      map('}', kulala.jump_next, 'Next Request' )
     end,
   })
 end)
@@ -267,7 +270,7 @@ later(function()
   image.setup()
   image.disable() -- Disable images by default
 
-  vim.keymap.set('n', '<leader>tI', function()
+  nmap('<leader>tI', function()
     if image.is_enabled() then
       image.disable()
       vim.notify('Images disabled', vim.log.levels.INFO)
@@ -275,5 +278,5 @@ later(function()
       image.enable()
       vim.notify('Images enabled', vim.log.levels.INFO)
     end
-  end, { desc = 'Toggle [I]mages' })
+  end, 'Toggle [I]mages')
 end)
