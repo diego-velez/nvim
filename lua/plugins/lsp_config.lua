@@ -1,4 +1,4 @@
--- vim.lsp.set_log_level 'off' WARN: this might be needed if getting lsp log too big ah type shi
+vim.lsp.log.set_level(vim.log.levels.OFF)
 
 require('mason').setup {
   ui = {
@@ -16,76 +16,6 @@ require('lazydev').setup {
     { path = '$HOME/.local/share/LuaAddons/', words = { 'love.' } },
   },
 }
-
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('DVT LSP Config', { clear = true }),
-  callback = function(event)
-    local map = function(keys, func, desc)
-      vim.keymap.set('n', keys, func, { buffer = event.buf, desc = desc })
-    end
-    local client = vim.lsp.get_client_by_id(event.data.client_id)
-
-    map('gd', function()
-      MiniPick.registry.LspPicker('definition', true)
-    end, 'LSP: [G]oto [D]efinition')
-
-    map('gr', function()
-      MiniPick.registry.LspPicker('references', true)
-    end, 'LSP: [G]oto [R]eferences')
-
-    map('gI', function()
-      MiniPick.registry.LspPicker('implementation', true)
-    end, 'LSP: [G]oto [I]mplementation')
-
-    map('gy', function()
-      MiniPick.registry.LspPicker('type_definition', true)
-    end, 'LSP: [G]oto T[y]pe Definition')
-
-    map('gD', function()
-      MiniPick.registry.LspPicker('declaration', true)
-    end, 'LSP: [G]oto [D]eclaration')
-
-    map('<leader>ca', vim.lsp.buf.code_action, 'LSP: Code [A]ction')
-
-    map('<leader>cr', function()
-      require('live-rename').rename { insert = true }
-    end, 'LSP: [R]ename')
-
-    map('h', vim.lsp.buf.hover, 'LSP: [H]over')
-    vim.keymap.set('n', 'K', '<nop>', { buf = event.buf })
-
-    if
-      client and client:supports_method(vim.lsp.protocol.Methods.textDocument_codeLens, event.buf)
-    then
-      vim.notify 'Codelens Supported'
-      map('<leader>cc', vim.lsp.codelens.run, 'LSP: [C]odelens')
-      map('<leader>tC', function()
-        vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
-
-        if vim.lsp.codelens.is_enabled() then
-          vim.notify('Codelens enabled', vim.log.levels.INFO)
-        else
-          vim.notify('Codelens disabled', vim.log.levels.INFO)
-        end
-      end, 'LSP: [T]oggle [C]odelens')
-    end
-
-    if
-      client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
-    then
-      vim.notify 'Inlay Hints Supported'
-      map('<leader>ti', function()
-        vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
-
-        if vim.lsp.inlay_hint.is_enabled { bufnr = event.buf } then
-          vim.notify('Inlay hints enabled', vim.log.levels.INFO)
-        else
-          vim.notify('Inlay hints disabled', vim.log.levels.INFO)
-        end
-      end, 'LSP: [T]oggle [I]nlay Hints')
-    end
-  end,
-})
 
 -- Configure Java specific stuff separately
 require('java').setup {}

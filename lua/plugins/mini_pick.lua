@@ -1,34 +1,3 @@
--- Use proper slash depending on OS
-local parent_dir_pattern = vim.fn.has 'win32' == 1 and '([^\\/]+)([\\/])' or '([^/]+)(/)'
-
--- Shorten a folder's name
-local shorten_dirname = function(name, path_sep)
-  local first = vim.fn.strcharpart(name, 0, 1)
-  first = first == '.' and vim.fn.strcharpart(name, 0, 2) or first
-  return first .. path_sep
-end
-
--- Shorten one path
--- WARN: This can only be called for MiniPick
-local make_short_path = function(path)
-  local win_id = MiniPick.get_picker_state().windows.main
-  local buf_width = vim.api.nvim_win_get_width(win_id)
-  local char_count = vim.fn.strchars(path)
-  -- Do not shorten the path if it is not needed
-  if char_count < buf_width then
-    return path
-  end
-
-  local shortened_path = path:gsub(parent_dir_pattern, shorten_dirname)
-  char_count = vim.fn.strchars(shortened_path)
-  -- Return only the filename when the shorten path still overflows
-  if char_count >= buf_width then
-    return shortened_path:match(parent_dir_pattern)
-  end
-
-  return shortened_path
-end
-
 require('mini.pick').setup {
   delay = {
     busy = 1,
@@ -116,31 +85,6 @@ require('mini.pick').setup {
 -- Using primarily for code action
 -- See https://github.com/echasnovski/mini.nvim/discussions/1437
 vim.ui.select = MiniPick.ui_select
-
--- Shorten file paths by default
-local show_short_files = function(buf_id, items_to_show, query)
-  local short_items_to_show = vim.tbl_map(make_short_path, items_to_show)
-  -- TODO: Instead of using default show, replace in order to highlight proper folder and add icons back
-  MiniPick.default_show(buf_id, short_items_to_show, query)
-end
-
----@class DVTMiniFiles
----@field shorten_dirname boolean
----@param local_opts DVTMiniFiles | nil
----@param opts table | nil
-MiniPick.registry.files = function(local_opts, opts)
-  local_opts = local_opts or {}
-  local_opts = vim.tbl_extend('force', local_opts, { shorten_dirname = false })
-  if local_opts.shorten_dirname then
-    opts = opts or {
-      source = { show = show_short_files },
-    }
-  else
-    opts = opts or {}
-  end
-
-  MiniPick.builtin.files(local_opts, opts)
-end
 
 -- Show highlight in buf_lines picker
 -- See https://github.com/echasnovski/mini.nvim/discussions/988#discussioncomment-10398788
@@ -252,24 +196,18 @@ MiniPick.registry.todo = function()
   end)
 end
 
+---@class LspPickerOpts
+---@field scope "declaration" | "definition" | "document_symbol" | "implementation" | "references" | "type_definition" | "workspace_symbol"
+---@field autojump boolean? If there is only one result it will jump to it.
+
 -- Open LSP picker for the given scope
----@param scope "declaration" | "definition" | "document_symbol" | "implementation" | "references" | "type_definition" | "workspace_symbol"
----@param autojump boolean? If there is only one result it will jump to it.
-MiniPick.registry.LspPicker = function(scope, autojump)
+---@param local_opts LspPickerOpts
+MiniPick.registry.LspPicker = function(local_opts)
+  local scope = local_opts.scope
+
   ---@return string
   local function get_symbol_query()
     return vim.fn.input 'Symbol: '
-  end
-
-  if not autojump then
-    local opts = { scope = scope }
-
-    if scope == 'workspace_symbol' then
-      opts.symbol_query = get_symbol_query()
-    end
-
-    MiniExtra.pickers.lsp(opts)
-    return
   end
 
   ---@param opts vim.lsp.LocationOpts.OnList
@@ -310,4 +248,24 @@ MiniPick.registry.LspPicker = function(scope, autojump)
   end
 
   vim.lsp.buf[scope] { on_list = on_list }
+end
+
+MiniPick.registry.spellsuggest = function()
+  local word = vim.fn.expand '<cword>'
+  MiniExtra.pickers.spellsuggest(nil, {
+    window = {
+      config = function()
+        local height = math.floor(0.2 * vim.o.lines)
+        local width = math.floor(math.max(vim.fn.strdisplaywidth(word) + 2, 20))
+        return {
+          relative = 'cursor',
+          anchor = 'NW',
+          height = height,
+          width = width,
+          row = 1, -- I want to see <cword>
+          col = -1, -- Aligned nicely with <cword>
+        }
+      end,
+    },
+  })
 end

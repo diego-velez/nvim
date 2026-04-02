@@ -1,111 +1,122 @@
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- Clear highlights on search when pressing <Esc> in normal mode
-vim.keymap.set('n', '<ESC>', '<cmd>nohlsearch<CR>')
+local nmap = function(lhs, rhs, desc)
+  vim.keymap.set('n', lhs, rhs, { desc = desc })
+end
+local xmap = function(lhs, rhs, desc)
+  vim.keymap.set('x', lhs, rhs, { desc = desc })
+end
 
--- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
--- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
--- is not what someone will guess without a bit more experience.
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- Clear highlights on search when pressing <Esc> in normal mode
+nmap('<ESC>', '<cmd>nohlsearch<CR>')
 
 -- Keep cursor centered
-vim.keymap.set('n', '<C-d>', function()
-  vim.cmd.normal { '\4', bang = true }
-  MiniAnimate.execute_after('scroll', 'normal! zz')
-end)
-vim.keymap.set('n', '<C-u>', function()
-  vim.cmd.normal { '\21', bang = true }
-  MiniAnimate.execute_after('scroll', 'normal! zz')
-end)
-vim.keymap.set('n', 'n', function()
-  local succeeded = pcall(vim.cmd.normal, { 'n', bang = true })
-  if succeeded then
-    MiniAnimate.execute_after('scroll', 'normal! zzzv')
-  end
-end)
-vim.keymap.set('n', 'N', function()
-  local succeeded = pcall(vim.cmd.normal, { 'N', bang = true })
-  if succeeded then
-    MiniAnimate.execute_after('scroll', 'normal! zzzv')
-  end
-end)
-vim.keymap.set('n', 'G', function()
-  vim.cmd.normal { 'G', bang = true }
-  MiniAnimate.execute_after('scroll', 'normal! zz')
-end)
+local move_cursor = function(lhs, norm_lhs, ex_after)
+  nmap(lhs, function()
+    local succeded = pcall(vim.cmd.normal, { norm_lhs, bang = true })
+    if succeded then
+      MiniAnimate.execute_after('scroll', 'normal! ' .. ex_after)
+    end
+  end)
+end
+
+move_cursor('<C-d>', '\4', 'zz')
+move_cursor('<C-u>', '\21', 'zz')
+move_cursor('n', 'n', 'zzzv')
+move_cursor('N', 'N', 'zzzv')
 
 -- Paste linewise before/after current line
-vim.keymap.set('n', '[p', '<cmd>exe "iput! " . v:register<CR>', { desc = 'Paste above' })
-vim.keymap.set('n', ']p', '<cmd>exe "iput " . v:register<CR>', { desc = 'Paste below' })
+nmap('[p', '<cmd>exe "iput! " . v:register<CR>', 'Paste above')
+nmap(']p', '<cmd>exe "iput " . v:register<CR>', 'Paste below')
 
 -- Have cursor stay in place when joining lines together
-vim.keymap.set('n', 'J', 'mzJ`z')
+nmap('J', 'mzJ`z')
 
 -- Stop automatically copying
 vim.keymap.set('x', 'p', [["_dp]])
-vim.keymap.set('n', 'C', '"_C')
+nmap('C', '"_C')
 
 -- Disable Q because apparently it's trash lmao
-vim.keymap.set('n', 'Q', '<nop>')
+nmap('Q', '<nop>')
 
 -- Rename the word my cursor is on using vim's substitute thing
-vim.keymap.set(
-  'n',
+nmap(
   '<leader>cs',
   [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]],
-  { desc = "Rename using Vim's [S]ubstitution" }
+  "Rename using Vim's [S]ubstitution"
 )
 
 -- Search visual selection
-vim.keymap.set('x', '/', '<esc>/\\%V', { desc = 'Search visual selection' })
+xmap('/', '<esc>/\\%V', 'Search visual selection')
 
 -- Commenting
-vim.keymap.set(
-  'n',
-  'gco',
-  'o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>',
-  { desc = 'Add Comment Below' }
-)
-vim.keymap.set(
-  'n',
-  'gcO',
-  'O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>',
-  { desc = 'Add Comment Above' }
-)
+nmap('gco', 'o<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>', 'Add Comment Below')
+nmap('gcO', 'O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>', 'Add Comment Above')
 
--- Buffers
+-- b is for 'buffer'.
 local new_scratch_buffer = function()
   vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(true, true))
 end
-vim.keymap.set('n', '<leader>bn', new_scratch_buffer, { desc = 'New Buffer' })
-vim.keymap.set('n', '<leader>bd', '<cmd>lua MiniBufremove.delete()<cr>', { desc = 'Delete Buffer' })
-vim.keymap.set('n', '<leader>ba', '<cmd>b#<cr>', { desc = 'Alternate Buffer' })
+nmap('<leader>bn', new_scratch_buffer, 'New Buffer')
+nmap('<leader>bd', '<cmd>lua MiniBufremove.delete()<cr>', 'Delete Buffer')
+nmap('<leader>ba', '<cmd>b#<cr>', 'Alternate Buffer')
 
--- [U]I keymaps
-vim.keymap.set('n', '<leader>ui', vim.show_pos, { desc = 'Inspect Pos' })
-vim.keymap.set('n', '<leader>uI', function()
-  vim.treesitter.inspect_tree()
-  vim.api.nvim_input 'I'
-end, { desc = 'Inspect Tree' })
-vim.keymap.set(
-  'n',
-  '<leader>ur',
-  '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>',
-  { desc = '[R]edraw' }
-)
+-- u is for 'UI'.
+nmap('<leader>ui', '<cmd>Inspect<cr>', 'Inspect Pos')
+nmap('<leader>uI', '<cmd>InspectTree<cr>', 'Inspect Tree')
+nmap('<leader>ur', '<Cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>', '[R]edraw')
 
 -- Edit macros
-vim.keymap.set(
-  'n',
+nmap(
   '<leader>m',
   ":<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>",
-  { desc = 'Edit [M]acros' }
+  'Edit [M]acros'
 )
 
 -- Use make by default
 -- stylua: ignore
-vim.keymap.set('n', '<leader>r', '<cmd>update<cr> <cmd>make<cr>', { desc = '[R]un file with :make' })
+nmap('<leader>r', '<cmd>update<cr> <cmd>make<cr>', '[R]un file with :make')
 
 -- Delete line but leave an empty line
-vim.keymap.set('n', 'X', '"_0D', { desc = 'Delete line but leave an empty line' })
+nmap('X', '"_0D', 'Delete line but leave an empty line')
+
+-- s is for 'search'.
+nmap('<leader>/', '<cmd>Pick buf_lines<cr>', '[/] Fuzzily search in current buffer')
+nmap('<leader>so', '<cmd>Pick oldfiles<cr>', '[S]earch [O]ld Files')
+nmap('<leader>sr', '<cmd>Pick resume<cr>', '[S]earch [R]esume')
+nmap('<leader>sf', '<cmd>Pick files<cr>', '[S]earch [F]iles')
+nmap('<leader><leader>', '<cmd>Pick files<cr>', '[S]earch [F]iles')
+nmap('<leader>sh', '<cmd>Pick help default_split="vertical"<cr>', '[S]earch [H]elp')
+nmap('<leader>sb', '<cmd>Pick buffers<cr>', '[S]earch [B]uffers')
+nmap('<leader>st', '<cmd>Pick todo<cr>', '[S]earch [T]odo')
+nmap('<leader>ss', '<cmd>Pick lsp scope="document_symbol"', '[S]earch [S]ymbols')
+nmap('<leader>sH', '<cmd>Pick history<cr>', '[S]earch [H]istory')
+nmap('<leader>sd', '<cmd>Pick diagnostic<cr>', '[S]earch [D]iagnostic')
+nmap('<leader>sC', '<cmd>Pick colorschemes<cr>', '[S]earch [C]olorscheme')
+nmap('<leader>sg', '<cmd>Pick grep_live<cr>', '[S]earch [G]rep')
+nmap('<leader>sw', '<cmd>Pick grep pattern="<cword>"<cr>', '[S]earch [W]ord')
+nmap('z=', '<cmd>Pick spellsuggest<cr>', 'Show spellings suggestions')
+
+-- g is for 'Git'. Common usage:
+-- - `<Leader>gl` - open LazyGit
+-- - `<Leader>go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes
+nmap('<leader>gL', '<cmd>LazyGit<cr>', 'LazyGit (Project cwd)')
+nmap('<leader>gl', '<cmd>LazyGitCurrentFile<cr>', 'LazyGit (current file)')
+nmap('<leader>gh', '<cmd>LazyGitFilterCurrentFile<cr>', 'Commit [H]istory (current file)')
+nmap('<leader>gH', '<cmd>LazyGitFilter<cr>', 'Commit [H]istory (Project cwd)')
+nmap('<leader>gd', '<Cmd>lua MiniDiff.toggle_overlay()<CR>', 'Toggle [d]iff overlay')
+
+-- LSP Stuff
+nmap('gd', '<cmd>Pick LspPicker scope="definition"<cr>', 'LSP: [G]oto [D]efinition')
+nmap('gr', '<cmd>Pick LspPicker scope="references"<cr>', 'LSP: [G]oto [R]eferences')
+nmap('gI', '<cmd>Pick LspPicker scope="implementation"<cr>', 'LSP: [G]oto [I]mplementation')
+nmap('gy', '<cmd>Pick LspPicker scope="type_definition"<cr>', 'LSP: [G]oto T[y]pe Definition')
+nmap('gD', '<cmd>Pick LspPicker scope="declaration"<cr>', 'LSP: [G]oto [D]eclaration')
+nmap('<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<cr>', 'LSP: Code [A]ction')
+nmap('<leader>cr', '<cmd>lua require("live-rename").rename({insert=true})<cr>', 'LSP: [R]ename')
+nmap('h', '<cmd>lua vim.lsp.buf.hover()<cr>', 'LSP: [H]over')
+nmap('K', '<nop>', '')
+
+-- Other stuff
+nmap('<leader>n', '<cmd>lua MiniNotify.show_history()<cr>', '[N]otification History')

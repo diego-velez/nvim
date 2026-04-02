@@ -244,13 +244,17 @@ later(function()
     group = vim.api.nvim_create_augroup('DVT Kulala', { clear = true }),
     pattern = { 'http', 'rest' },
     callback = function(args)
-      vim.keymap.set('n', '<leader>r', '', { buffer = args.buf, desc = '[R]un' })
-      vim.keymap.set('n', '<leader>rs', kulala.run, { buffer = args.buf, desc = '[S]end request' })
-      vim.keymap.set('n', '<leader>ra', kulala.run_all, { buffer = args.buf, desc = 'Send [A]ll requests' })
-      vim.keymap.set('n', '<leader>rp', kulala.replay, { buffer = args.buf, desc = 'Run [P]revious' })
-      vim.keymap.set('n', '<leader>ru', kulala.toggle_view, { buffer = args.buf, desc = 'Toggle UI' })
-      vim.keymap.set('n', '{', kulala.jump_prev, { buffer = args.buf, desc = 'Previous Request' })
-      vim.keymap.set('n', '}', kulala.jump_next, { buffer = args.buf, desc = 'Next Request' })
+      local nmap = function(lhs, rhs, desc)
+        vim.keymap.set('n', lhs, rhs, { buffer = args.buf, desc = desc })
+      end
+
+      nmap('<leader>r', '', '[R]un' )
+      nmap('<leader>rs', kulala.run, '[S]end request' )
+      nmap('<leader>ra', kulala.run_all, 'Send [A]ll requests' )
+      nmap('<leader>rp', kulala.replay, 'Run [P]revious' )
+      nmap('<leader>ru', kulala.toggle_view, 'Toggle UI' )
+      nmap('{', kulala.jump_prev, 'Previous Request' )
+      nmap('}', kulala.jump_next, 'Next Request' )
     end,
   })
 end)

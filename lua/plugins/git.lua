@@ -43,12 +43,6 @@ gitsigns.setup {
     map('n', '<leader>gS', gitsigns.stage_buffer, '[S]tage buffer')
     map('n', '<leader>gR', gitsigns.reset_buffer, '[R]eset buffer')
 
-    -- Diffing
-    map('n', '<leader>gd', gitsigns.diffthis, '[D]iff against head')
-    map('n', '<leader>gD', function()
-      gitsigns.diffthis '~'
-    end, '[D]iff against previous commit')
-
     -- Blame
     map('n', '<leader>gb', gitsigns.toggle_current_line_blame, 'Toggle [b]lame')
     map('n', '<leader>gB', function()
@@ -59,46 +53,3 @@ gitsigns.setup {
     map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', 'Git [h]unk')
   end,
 }
-
--- Keymaps
-
-vim.keymap.set('n', '<leader>gL', '<cmd>LazyGit<cr>', { desc = 'LazyGit (Project cwd)' })
-vim.keymap.set(
-  'n',
-  '<leader>gl',
-  '<cmd>LazyGitCurrentFile<cr>',
-  { desc = 'LazyGit (current file)' }
-)
-vim.keymap.set(
-  'n',
-  '<leader>gh',
-  '<cmd>LazyGitFilterCurrentFile<cr>',
-  { desc = 'Commit [H]istory (current file)' }
-)
-vim.keymap.set(
-  'n',
-  '<leader>gH',
-  '<cmd>LazyGitFilter<cr>',
-  { desc = 'Commit [H]istory (Project cwd)' }
-)
-
-vim.keymap.set('n', '<leader>gm', function()
-  vim.cmd 'noautocmd write'
-  vim.fn.jobstart({ 'git', 'difftool', vim.fn.expand '%' }, {
-    on_exit = function()
-      vim.schedule(function()
-        vim.cmd.checktime()
-      end)
-    end,
-  })
-end, { noremap = true, silent = true, desc = 'Diff Tool' })
-vim.keymap.set('n', '<leader>gM', function()
-  vim.cmd 'noautocmd write'
-  vim.fn.jobstart({ 'git', 'mergetool', vim.fn.expand '%' }, {
-    on_exit = function()
-      vim.schedule(function()
-        vim.cmd.checktime()
-      end)
-    end,
-  })
-end, { noremap = true, silent = true, desc = 'Merge Tool' })

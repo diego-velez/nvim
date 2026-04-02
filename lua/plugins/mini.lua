@@ -52,6 +52,11 @@ later(function()
   require('mini.git').setup()
 end)
 
+-- NOTE: Start mini.diff configuration
+later(function()
+  require('mini.diff').setup()
+end)
+
 -- NOTE: Start mini.extra configuration
 later(function()
   require('mini.extra').setup()
@@ -77,6 +82,17 @@ later(function()
       },
     },
   }
+
+  vim.keymap.set('n', '<leader>th', function()
+    MiniHipatterns.toggle(0)
+    vim.g.highlighting_enabled = not vim.g.highlighting_enabled
+
+    if vim.g.highlighting_enabled then
+      vim.notify('Highlighting enabled', vim.log.levels.INFO)
+    else
+      vim.notify('Highlighting disabled', vim.log.levels.INFO)
+    end
+  end, { desc = 'Toggle [H]ighlighting' })
 end)
 
 -- NOTE: Start mini.ai configuration
@@ -702,201 +718,3 @@ now_if_args(function()
   MiniMisc.setup_restore_cursor()
   MiniMisc.setup_termbg_sync()
 end)
-
---- Keymaps ---
-
-vim.keymap.set('n', '<leader>th', function()
-  MiniHipatterns.toggle(0)
-  vim.g.highlighting_enabled = not vim.g.highlighting_enabled
-
-  if vim.g.highlighting_enabled then
-    vim.notify('Highlighting enabled', vim.log.levels.INFO)
-  else
-    vim.notify('Highlighting disabled', vim.log.levels.INFO)
-  end
-end, { desc = 'Toggle [H]ighlighting' })
-
-vim.keymap.set('n', '<leader>/', function()
-  MiniPick.registry.buf_lines()
-end, { desc = '[/] Fuzzily search in current buffer' })
-
-vim.keymap.set('n', '<leader>so', function()
-  MiniExtra.pickers.oldfiles()
-end, { desc = '[S]earch [O]ld Files' })
-vim.keymap.set('n', '<leader>sr', function()
-  MiniPick.builtin.resume()
-end, { desc = '[S]earch [R]esume' })
-
-local ns = vim.api.nvim_create_namespace 'DVT MiniPickRanges'
-vim.keymap.set('n', '<leader>sg', function()
-  local show = function(buf_id, items, query)
-    local hl_groups = {}
-    items = vim.tbl_map(function(item)
-      -- Get all items as returned by ripgrep
-      local path, row, column, str = string.match(item, '^([^|]*)|([^|]*)|([^|]*)|(.*)$')
-
-      path = vim.fs.basename(path)
-
-      -- Trim text found
-      str = string.gsub(str, '^%s*(.-)%s*$', '%1')
-
-      local icon, hl = MiniIcons.get('file', path)
-      table.insert(hl_groups, hl)
-
-      return string.format('%s %s|%s|%s| %s', icon, path, row, column, str)
-    end, items)
-
-    MiniPick.default_show(buf_id, items, query, { show_icons = false })
-
-    -- Add color to icons
-    local icon_extmark_opts = { hl_mode = 'combine', priority = 210 }
-    for i = 1, #hl_groups do
-      icon_extmark_opts.hl_group = hl_groups[i]
-      icon_extmark_opts.end_row, icon_extmark_opts.end_col = i - 1, 1
-      vim.api.nvim_buf_set_extmark(buf_id, ns, i - 1, 0, icon_extmark_opts)
-    end
-  end
-
-  local set_items_opts = { do_match = false, querytick = 0 }
-  local process
-  local match = function(_, _, query)
-    pcall(vim.loop.process_kill, process)
-    if #query == 0 then
-      return MiniPick.set_picker_items({}, set_items_opts)
-    end
-
-    local command = {
-      'rg',
-      '--column',
-      '--line-number',
-      '--no-heading',
-      '--field-match-separator',
-      '|',
-      '--no-follow',
-      '--color=never',
-      '--',
-      table.concat(query),
-    }
-    process = MiniPick.set_picker_items_from_cli(
-      command,
-      { set_items_opts = set_items_opts, spawn_opts = { cwd = vim.uv.cwd() } }
-    )
-  end
-
-  local choose = function(item)
-    local path, row, column = string.match(item, '^([^|]*)|([^|]*)|([^|]*)|.*$')
-    local chosen = {
-      path = path,
-      lnum = tonumber(row),
-      col = tonumber(column),
-    }
-    MiniPick.default_choose(chosen)
-  end
-
-  MiniPick.start {
-    source = {
-      name = 'Live Grep',
-      items = {},
-      match = match,
-      show = show,
-      choose = choose,
-    },
-  }
-end, { desc = '[S]earch [G]rep' })
-vim.keymap.set('n', '<leader>sG', function()
-  vim.ui.input({
-    prompt = 'What directory do you want to search in? ',
-    default = vim.uv.cwd(),
-    completion = 'dir',
-  }, function(input)
-    if not input or input == '' then
-      return
-    end
-
-    MiniPick.builtin.grep_live({}, { source = { cwd = input } })
-  end)
-end, { desc = '[S]earch [G]rep in specific directory' })
-vim.keymap.set('n', '<leader>sw', function()
-  local cword = vim.fn.expand '<cword>'
-  vim.defer_fn(function()
-    MiniPick.set_picker_query { cword }
-  end, 25)
-  MiniPick.builtin.grep_live()
-end, { desc = '[S]earch [W]ord' })
-
-vim.keymap.set('n', '<leader>sf', function()
-  MiniPick.registry.files()
-end, { desc = '[S]earch [F]iles' }) -- See https://github.com/echasnovski/mini.nvim/discussions/1873
-vim.keymap.set('n', '<leader><space>', function()
-  MiniPick.registry.files()
-end, { desc = 'Search Files' })
-vim.keymap.set('n', '<leader>sF', function()
-  vim.ui.input({
-    prompt = 'What directory do you want to search in? ',
-    default = vim.uv.cwd(),
-    completion = 'dir',
-  }, function(input)
-    if not input or input == '' then
-      return
-    end
-
-    MiniPick.registry.files(nil, {
-      source = {
-        cwd = input,
-      },
-    })
-  end)
-end, { desc = '[S]earch [F]iles in specific directory' })
-vim.keymap.set('n', '<leader>sc', function()
-  local config_path = vim.fn.stdpath 'config'
-  MiniPick.registry.files(nil, {
-    source = {
-      cwd = config_path,
-    },
-  })
-end, { desc = '[S]earch [C]onfig' })
-
-vim.keymap.set('n', '<leader>sh', function()
-  MiniPick.builtin.help { default_split = 'vertical' }
-end, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>st', function()
-  MiniPick.registry.todo()
-end, { desc = '[S]earch [T]odo' })
-vim.keymap.set('n', '<leader>ss', function()
-  MiniExtra.pickers.lsp { scope = 'document_symbol' }
-end, { desc = '[S]earch [S]ymbols' })
-vim.keymap.set('n', '<leader>sH', function()
-  MiniExtra.pickers.history()
-end, { desc = '[S]earch [H]istory' })
-vim.keymap.set('n', '<leader>sd', function()
-  MiniExtra.pickers.diagnostic()
-end, { desc = '[S]earch [D]iagnostic' })
-vim.keymap.set('n', '<leader>sb', function()
-  MiniPick.builtin.buffers()
-end, { desc = '[S]earch [B]uffers' })
-vim.keymap.set('n', '<leader>n', function()
-  vim.cmd.tabnew()
-  MiniNotify.show_history()
-end, { desc = '[N]otification History' })
-vim.keymap.set('n', '<leader>sC', function()
-  MiniExtra.pickers.colorschemes(nil, nil)
-end, { desc = '[S]earch [C]olorscheme' })
-vim.keymap.set('n', 'z=', function()
-  local word = vim.fn.expand '<cword>'
-  MiniExtra.pickers.spellsuggest(nil, {
-    window = {
-      config = function()
-        local height = math.floor(0.2 * vim.o.lines)
-        local width = math.floor(math.max(vim.fn.strdisplaywidth(word) + 2, 20))
-        return {
-          relative = 'cursor',
-          anchor = 'NW',
-          height = height,
-          width = width,
-          row = 1, -- I want to see <cword>
-          col = -1, -- Aligned nicely with <cword>
-        }
-      end,
-    },
-  })
-end, { desc = 'Show spellings suggestions' })
