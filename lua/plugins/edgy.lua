@@ -4,7 +4,7 @@ require('edgy').setup {
     { ft = 'qf', title = 'QuickFix' },
     {
       title = 'Overseer Output',
-      ft = 'OverseerListOutput',
+      ft = 'OverseerOutput',
     },
     { title = 'Neotest Output', ft = 'neotest-output-panel', size = { height = 15 } },
     { title = 'Undo Tree Diff', ft = 'diff', size = { height = 15 } },
@@ -28,7 +28,7 @@ require('edgy').setup {
       size = { width = 0.3 },
     },
     {
-      title = 'Overseer',
+      title = 'Overseer Tasks',
       ft = 'OverseerList',
     },
   },
