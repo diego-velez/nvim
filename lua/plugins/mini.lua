@@ -514,7 +514,9 @@ end)
 
 -- NOTE: Start mini.bracketed configuration
 later(function()
-  require('mini.bracketed').setup()
+  require('mini.bracketed').setup {
+    indent = { suffix = '' },
+  }
 end)
 
 -- NOTE: Start mini.snippets configuration
