@@ -256,9 +256,7 @@ now_if_args(function()
     'https://github.com/folke/lazydev.nvim',
     'https://github.com/DrKJeff16/wezterm-types',
     'https://github.com/saecki/live-rename.nvim',
-  }
-
-  add {
+    -- nvim-java stuff
     {
       src = 'https://github.com/JavaHello/spring-boot.nvim',
       version = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
@@ -269,7 +267,46 @@ now_if_args(function()
     'https://github.com/nvim-java/nvim-java',
   }
 
-  require 'plugins.lsp_config'
+  vim.lsp.log.set_level(vim.log.levels.OFF)
+
+  require('mason').setup {}
+
+  require('lazydev').setup {
+    library = {
+      -- Load luvit types when the `vim.uv` word is found
+      { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      { path = 'wezterm-types', mods = { 'wezterm' } },
+      { path = '$HOME/.local/share/LuaAddons/', words = { 'love.' } },
+    },
+  }
+
+  -- Make sure all LSPs and mason tools are installed
+  local ensure_installed = {
+    'actionlint',
+    'templ',
+    'gopls',
+    'basedpyright',
+    'lua_ls',
+    'htmx',
+    -- WARN: You need to have `openssl-devel` to install asm_lsp
+    'asm_lsp',
+    'clangd',
+    'tinymist',
+    'kotlin_lsp',
+    'qmlls',
+    'ruff',
+    'stylua', -- Used to format Lua code
+    'bash-language-server',
+    'html-lsp',
+    'css-lsp',
+    'json-lsp',
+    'jq',
+  }
+  require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+  vim.cmd.MasonToolsInstall()
+
+  -- Enable LSP servers
+  require('mason-lspconfig').setup { automatic_enable = true }
 end)
 
 -- Formatter
