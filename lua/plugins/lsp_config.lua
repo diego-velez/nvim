@@ -1,12 +1,6 @@
 vim.lsp.log.set_level(vim.log.levels.OFF)
 
-require('mason').setup {
-  ui = {
-    keymaps = {
-      toggle_help = '?',
-    },
-  },
-}
+require('mason').setup {}
 
 require('lazydev').setup {
   library = {
@@ -31,9 +25,17 @@ else
 end
 
 local servers = {
+  templ = {},
   gopls = {
+    filetypes = {
+      'go',
+      'templ',
+    },
     settings = {
       gopls = {
+        templateExtensions = {
+          'templ',
+        },
         ['ui.inlayhint.hints'] = {
           assignVariableTypes = true,
           compositeLiteralFields = true,
@@ -71,13 +73,16 @@ local servers = {
     },
   },
   htmx = {
-    filetypes = {
-      'gohtml',
-      'gohtmltmpl',
-      'handlebars',
-      'html',
-      'mustache',
-      'templ',
+    cmd = { 'htmx-lsp', '--level', 'OFF' },
+    settings = {
+      filetypes = {
+        'gohtml',
+        'gohtmltmpl',
+        'handlebars',
+        'html',
+        'mustache',
+        -- 'templ',
+      },
     },
   },
   -- WARN: You need to have `openssl-devel` to install asm_lsp
@@ -114,7 +119,6 @@ vim.list_extend(ensure_installed, {
   'stylua', -- Used to format Lua code
   'bash-language-server',
   'html-lsp',
-  'htmx-lsp',
   'css-lsp',
   'json-lsp',
   'jq',

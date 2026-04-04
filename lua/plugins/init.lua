@@ -179,7 +179,71 @@ now_if_args(function()
     'https://github.com/folke/ts-comments.nvim',
   }
 
-  require 'plugins.treesitter'
+  -- Auto-install treesitter parsers
+  -- Defined languages which will have parsers installed and auto enabled
+  -- After changing this, restart Neovim once to install necessary parsers. Wait
+  -- for the installation to finish before opening a file for added language(s).
+  -- stylua: ignore start
+  local languages = {
+    'bash', 'c', 'diff', 'go', 'html', 'javascript', 'jsdoc', 'json', 'lua', 'luadoc', 'luap',
+    'markdown', 'markdown_inline', 'printf', 'python', 'query', 'regex', 'templ', 'toml', 'tsx',
+    'typescript', 'typst', 'vim', 'vimdoc', 'xml', 'yaml', 'yaml.ghaction',
+  }
+  -- stylua: ignore end
+  local isnt_installed = function(lang)
+    return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
+  end
+  local to_install = vim.tbl_filter(isnt_installed, languages)
+  if #to_install > 0 then
+    require('nvim-treesitter').install(to_install)
+  end
+
+  -- Enable treesitter after opening a file for a target language
+  local filetypes = {}
+  for _, lang in ipairs(languages) do
+    for _, ft in ipairs(vim.treesitter.language.get_filetypes(lang)) do
+      table.insert(filetypes, ft)
+    end
+  end
+  vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('Start treesitter', { clear = true }),
+    pattern = filetypes,
+    callback = function(ev)
+      vim.treesitter.start(ev.buf)
+    end,
+  })
+
+  -- Setup treesitter textobjects
+
+  local move = require 'nvim-treesitter-textobjects.move'
+  local goto_previous_start = function(keymap, textobject, description)
+    vim.keymap.set({ 'n', 'x', 'o' }, keymap, function()
+      move.goto_previous_start(textobject, 'textobjects')
+    end, { desc = description })
+  end
+  local goto_next_start = function(keymap, textobject, description)
+    vim.keymap.set({ 'n', 'x', 'o' }, keymap, function()
+      move.goto_next_start(textobject, 'textobjects')
+    end, { desc = description })
+  end
+
+  goto_previous_start('[[', '@function.outer', 'Go to previous function')
+  goto_previous_start('[c', '@class.outer', 'Go to previous [c]lass')
+  goto_previous_start('[n', '@comment.outer', 'Go to previous comment/[n]ote')
+  goto_previous_start('[a', '@parameter.inner', 'Go to previous [a]rgument')
+
+  goto_next_start(']]', '@function.outer', 'Go to next function')
+  goto_next_start(']c', '@class.outer', 'Go to next [c]lass')
+  goto_next_start(']n', '@comment.outer', 'Go to next comment/[n]ote')
+  goto_next_start(']a', '@parameter.inner', 'Go to next [a]rgument')
+
+  -- Setup treesitter context
+  require('treesitter-context').setup {
+    max_lines = 1,
+    multiline_threshold = 1,
+  }
+
+  require('ts-comments').setup()
 end)
 
 -- LSP
@@ -205,9 +269,6 @@ now_if_args(function()
     'https://github.com/nvim-java/nvim-java',
   }
 
-  require('java').setup()
-  vim.lsp.enable 'jdtls'
-
   require 'plugins.lsp_config'
 end)
 
@@ -215,14 +276,94 @@ end)
 later(function()
   add { 'https://github.com/stevearc/conform.nvim' }
 
-  require 'plugins.conform'
+  local disable_filetypes = { c = true, cpp = true }
+  local disable_lsp_formatter = { java = true }
+
+  require('conform').setup {
+    notify_on_error = true,
+    format_on_save = function(bufnr)
+      -- Do not autoformat if it is disabled
+      if not vim.g.enable_autoformat then
+        return
+      end
+
+      local buf_filetype = vim.bo[bufnr].filetype
+
+      if disable_filetypes[buf_filetype] then
+        return nil
+      elseif disable_lsp_formatter[buf_filetype] then
+        return {
+          timeout_ms = 500,
+          lsp_format = 'never',
+        }
+      end
+
+      return {
+        timeout_ms = 500,
+        lsp_format = 'fallback',
+      }
+    end,
+    formatters = {
+      hclfmt = {
+        command = '/google/data/ro/teams/terraform/bin/hclfmt',
+      },
+    },
+    ---@module "conform"
+    ---@type conform.FiletypeFormatter[]
+    formatters_by_ft = {
+      lua = { 'stylua' },
+      templ = { 'templ' },
+      html = { 'prettier' },
+      markdown = { 'prettier' },
+      typescriptreact = { 'prettier' },
+      typescript = { 'prettier' },
+      javascript = { 'prettier' },
+      sql = { 'pg_format' },
+      java = { 'google-java-format', lsp_format = 'never' },
+      terraform = { 'hclfmt' },
+      json = { 'jq' },
+      jsonc = { 'biome' },
+    },
+  }
+
+  vim.keymap.set('n', '<leader>f', function()
+    local bufnr = vim.api.nvim_get_current_buf()
+    local buf_filetype = vim.bo[bufnr].filetype
+
+    local lsp_format = 'fallback'
+    if disable_lsp_formatter[buf_filetype] then
+      lsp_format = 'never'
+    end
+
+    require('conform').format { async = true, lsp_format = lsp_format }
+  end, { desc = '[F]ormat buffer' })
 end)
 
 -- Linter
 now_if_args(function()
   add { 'https://github.com/mfussenegger/nvim-lint' }
 
-  require 'plugins.lint'
+  vim.filetype.add { pattern = { ['.*/.github/workflows/.*%.yml'] = 'yaml.ghaction' } }
+  require('lint').linters_by_ft = {
+    ['yaml.ghaction'] = { 'actionlint' },
+    go = { 'golangcilint' },
+    bash = { 'bash' },
+    fish = { 'fish' },
+  }
+
+  -- Create autocommand which carries out the actual linting on the specified events.
+  vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
+    desc = 'Run linting for current modifiable buffer',
+    group = vim.api.nvim_create_augroup('lint', { clear = true }),
+    callback = function()
+      -- Only run the linter in buffers that you
+      -- can modify in order to avoid superfluous noise, notably within
+      -- the handy LSP pop-ups that describe the hovered symbol using Markdown.
+      if vim.bo.modifiable then
+        require('lint').try_lint()
+      end
+    end,
+  })
 end)
 
 -- Git integration
@@ -428,15 +569,6 @@ later(function()
       prevInput = { n = '<s-tab>', i = '<up>' },
     },
   }
-
-  vim.keymap.set('n', '<leader>sR', function()
-    local grug = require 'grug-far'
-    local ext = vim.bo.buftype == '' and vim.fn.expand '%:e'
-    grug.open {
-      transient = true,
-      prefills = { filesFilter = ext and ext ~= '' and '*.' .. ext or nil },
-    }
-  end, { desc = '[S]earch and [R]eplace' })
 end)
 
 -- Typescript stuff
@@ -522,11 +654,6 @@ end)
 -- Undo tree
 later(function()
   vim.cmd.packadd 'nvim.undotree'
-  nmap(
-    '<leader>tu',
-    '<cmd>lua require("undotree").open({command="leftabove 40vnew"})<cr>',
-    'Toggle [u]ndo tree'
-  )
 end)
 
 -- Automatically set indentation
@@ -569,23 +696,4 @@ later(function()
       map('}', kulala.jump_next, 'Next Request' )
     end,
   })
-end)
-
--- Images in the terminal
-later(function()
-  add { 'https://github.com/3rd/image.nvim' }
-
-  local image = require 'image'
-  image.setup()
-  image.disable() -- Disable images by default
-
-  nmap('<leader>tI', function()
-    if image.is_enabled() then
-      image.disable()
-      vim.notify('Images disabled', vim.log.levels.INFO)
-    else
-      image.enable()
-      vim.notify('Images enabled', vim.log.levels.INFO)
-    end
-  end, 'Toggle [I]mages')
 end)

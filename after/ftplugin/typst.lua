@@ -151,5 +151,9 @@ vim.api.nvim_create_autocmd('ExitPre', {
   end,
 })
 
-vim.keymap.set('n', '<leader>r', Run, { buffer = 0, desc = '[R]un Preview in ' .. viewer })
-vim.keymap.set('n', '<leader>tr', ShowStderr, { buffer = 0, desc = 'Toggle [R]un Output Buffer' })
+local nmap = function(lhs, rhs, desc)
+  vim.keymap.set('n', '<leader>' .. lhs, rhs, { buffer = 0, desc = desc })
+end
+
+nmap('r', Run, '[R]un Preview in ' .. viewer)
+nmap('tr', ShowStderr, 'Toggle [R]un Output Buffer')

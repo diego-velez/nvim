@@ -82,17 +82,6 @@ later(function()
       },
     },
   }
-
-  vim.keymap.set('n', '<leader>th', function()
-    MiniHipatterns.toggle(0)
-    vim.g.highlighting_enabled = not vim.g.highlighting_enabled
-
-    if vim.g.highlighting_enabled then
-      vim.notify('Highlighting enabled', vim.log.levels.INFO)
-    else
-      vim.notify('Highlighting disabled', vim.log.levels.INFO)
-    end
-  end, { desc = 'Toggle [H]ighlighting' })
 end)
 
 -- NOTE: Start mini.ai configuration
