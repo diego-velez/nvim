@@ -140,6 +140,8 @@ now(function()
   }
 
   vim.cmd.colorscheme 'dracula'
+  -- Change the color of the division block by using its highlight group
+  vim.api.nvim_set_hl(0, 'Statusline', { bg = 'bg' })
 end)
 
 -- mini

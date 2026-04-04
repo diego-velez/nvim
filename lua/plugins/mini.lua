@@ -34,7 +34,12 @@ end)
 
 -- NOTE: Start mini.statusline configuration
 now_if_args(function()
-  require 'plugins.mini_statusline'
+  local statusline = require 'mini.statusline'
+  statusline.setup { use_icons = vim.g.have_nerd_font }
+  ---@diagnostic disable-next-line: duplicate-set-field
+  statusline.section_location = function()
+    return '%2l:%-2v'
+  end
 end)
 
 -- NOTE: Start mini.tabline configuration
