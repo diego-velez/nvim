@@ -26,6 +26,9 @@ move_cursor('<C-u>', '\21', 'zz')
 move_cursor('n', 'n', 'zzzv')
 move_cursor('N', 'N', 'zzzv')
 
+-- Notifications
+nmap('<leader>n', '<cmd>lua MiniNotify.show_history()<cr>', '[N]otification History')
+
 -- Paste linewise before/after current line
 nmap('[p', '<cmd>exe "iput! " . v:register<CR>', 'Paste above')
 nmap(']p', '<cmd>exe "iput " . v:register<CR>', 'Paste below')
@@ -125,8 +128,24 @@ nmap('<leader>cr', '<cmd>lua require("live-rename").rename({insert=true})<cr>', 
 nmap('h', '<cmd>lua vim.lsp.buf.hover()<cr>', 'LSP: [H]over')
 nmap('K', '<nop>', '')
 
--- Other stuff
-nmap('<leader>n', '<cmd>lua MiniNotify.show_history()<cr>', '[N]otification History')
+-- Spear
+nmap('<leader>la', '<cmd>Spear add<cr>', '[A]dd file to list')
+nmap('<leader>ld', '<cmd>Spear remove<cr>', '[D]elete file from list')
+nmap('<leader>lD', '<cmd>Spear delete<cr>', '[D]elete list')
+nmap('<leader>lc', '<cmd>Spear create<cr>', '[C]reate list')
+nmap('<leader>lr', '<cmd>Spear rename<cr>', '[R]ename list')
+nmap('<leader>ls', '<cmd>Spear switch<cr>', '[S]witch list')
+nmap('<leader>lu', '<cmd>Spear open<cr>', 'Spear UI')
+nmap('<A-n>', '<cmd>Spear select 1<cr>')
+nmap('<A-e>', '<cmd>Spear select 2<cr>')
+nmap('<A-i>', '<cmd>Spear select 3<cr>')
+nmap('<A-o>', '<cmd>Spear select 4<cr>')
+
+-- Overseer
+nmap('<leader>ow', '<cmd>OverseerToggle<cr>', 'Task list')
+nmap('<leader>oo', '<cmd>OverseerRun<cr>', 'Run task')
+nmap('<leader>ot', '<cmd>OverseerTaskAction<cr>', 'Task action')
+nmap('<leader>os', '<cmd>OverseerShell<cr>', 'Run shell command')
 
 -- Toggles
 nmap('<leader>tl', function()

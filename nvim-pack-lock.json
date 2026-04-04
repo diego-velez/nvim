@@ -134,7 +134,7 @@
       "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
     "spear.nvim": {
-      "rev": "17d2418f37eb753314db58eeb42b9e9e6fa5165d",
+      "rev": "352b55bcfc7609f63b910ce6081baa49b1ea7c41",
       "src": "https://github.com/diego-velez/spear.nvim"
     },
     "spring-boot.nvim": {
@@ -159,7 +159,7 @@
       "src": "https://github.com/pmizio/typescript-tools.nvim"
     },
     "wezterm-types": {
-      "rev": "83d3ba9758d5ae32c3bde35f1f37e86fe8f81340",
+      "rev": "74213f9dbb0ac2809122f5c595fee262ff387d99",
       "src": "https://github.com/DrKJeff16/wezterm-types"
     }
   }

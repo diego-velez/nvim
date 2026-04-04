@@ -622,33 +622,14 @@ later(function()
       },
     },
   }
-
-  nmap('<leader>ow', '<cmd>OverseerToggle<cr>', 'Task list')
-  nmap('<leader>oo', '<cmd>OverseerRun<cr>', 'Run task')
-  nmap('<leader>ot', '<cmd>OverseerTaskAction<cr>', 'Task action')
-  nmap('<leader>os', '<cmd>OverseerShell<cr>', 'Run shell command')
 end)
 
--- My spear
+-- My spear :)
 later(function()
   add {
     'https://github.com/diego-velez/spear.nvim',
     'https://github.com/nvim-lua/plenary.nvim',
   }
-
-  require('spear').setup()
-
-  nmap('<leader>la', '<cmd>lua require("spear").add()<cr>', '[A]dd file to list')
-  nmap('<leader>ld', '<cmd>lua require("spear").remove()<cr>', '[D]elete file from list')
-  nmap('<leader>lD', '<cmd>lua require("spear").delete()<cr>', '[D]elete list')
-  nmap('<leader>lc', '<cmd>lua require("spear").create()<cr>', '[C]reate list')
-  nmap('<leader>lr', '<cmd>lua require("spear").rename()<cr>', '[R]ename list')
-  nmap('<leader>ls', '<cmd>lua require("spear").switch()<cr>', '[S]witch list')
-  nmap('<leader>lu', '<cmd>lua require("spear.ui").open()<cr>', 'Spear UI')
-  nmap('<A-n>', '<cmd>lua require("spear").select(1)<cr>')
-  nmap('<A-e>', '<cmd>lua require("spear").select(2)<cr>')
-  nmap('<A-i>', '<cmd>lua require("spear").select(3)<cr>')
-  nmap('<A-o>', '<cmd>lua require("spear").select(4)<cr>')
 end)
 
 -- Undo tree
