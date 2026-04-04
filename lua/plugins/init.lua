@@ -106,6 +106,9 @@ now(function()
         -- Setup mini.trailspace
         MiniTrailspace = { bg = colors.bright_red },
 
+        -- Setup mini.jump
+        MiniJump = { fg = colors.orange, bg = colors.bg, underline = true },
+
         -- Setup harpoon window highlight groups
         HarpoonNormal = { fg = colors.fg, bg = colors.menu },
         HarpoonBorder = { fg = colors.purple, bg = colors.menu },

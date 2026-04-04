@@ -200,14 +200,6 @@ later(function()
     MiniJump.jump(target, backward, till)
   end)
 
-  -- Set highlight
-  local lspRefTextHl = vim.api.nvim_get_hl(0, { name = 'LspReferenceText', link = false })
-  vim.api.nvim_set_hl(
-    0,
-    'MiniJump',
-    { fg = lspRefTextHl.fg, bg = lspRefTextHl.bg, underline = true }
-  )
-
   local augroup = vim.api.nvim_create_augroup('MiniJump Highlighting', { clear = true })
   vim.api.nvim_create_autocmd('User', {
     desc = 'Disable highliting when in jump',
