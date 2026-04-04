@@ -144,17 +144,6 @@ now(function()
   vim.api.nvim_set_hl(0, 'Statusline', { bg = 'bg' })
 end)
 
--- mini
-now(function()
-  add {
-    'https://github.com/nvim-treesitter/nvim-treesitter',
-    'https://github.com/nvim-treesitter/nvim-treesitter-textobjects',
-    'https://github.com/folke/ts-comments.nvim',
-  }
-
-  require 'plugins.mini'
-end)
-
 -- Treesitter
 now_if_args(function()
   local plugin_name = 'nvim-treesitter'

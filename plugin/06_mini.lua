@@ -8,11 +8,6 @@ now(function()
   later(MiniIcons.tweak_lsp_kind)
 end)
 
--- NOTE: Start mini.starter configuration
-now(function()
-  require 'plugins.mini_starter'
-end)
-
 -- NOTE: Start mini.notify configuration
 now(function()
   require('mini.notify').setup {
@@ -45,11 +40,6 @@ end)
 -- NOTE: Start mini.tabline configuration
 now_if_args(function()
   require('mini.tabline').setup()
-end)
-
--- NOTE: Start mini.pick configuration
-later(function()
-  require 'plugins.mini_pick'
 end)
 
 -- NOTE: Start mini.git configuration
@@ -243,11 +233,6 @@ later(function()
     -- better deal with markdown code blocks
     markdown = true,
   }
-end)
-
--- NOTE: Start mini.files configuration
-later(function()
-  require 'plugins.mini_files'
 end)
 
 -- NOTE: Start mini.indentscope configuration
