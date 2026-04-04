@@ -281,7 +281,6 @@ now_if_args(function()
     'gopls',
     'basedpyright',
     'lua_ls',
-    'htmx',
     -- WARN: You need to have `openssl-devel` to install asm_lsp
     'asm_lsp',
     'clangd',
