@@ -1,5 +1,3 @@
-require('java').setup {}
-
 ---@type vim.lsp.Config
 return {
   handlers = {

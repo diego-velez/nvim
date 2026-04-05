@@ -91,7 +91,7 @@ local footer = [[
 ████████████████████████████████████████████████████████████
 ]]
 
-Config.now(function()
+Config.later_if_args(function()
   local starter = require 'mini.starter'
   starter.setup {
     header = days[os.date '%w'],

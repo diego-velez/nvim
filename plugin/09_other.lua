@@ -184,13 +184,16 @@ now_if_args(function()
     'typescript', 'typst', 'vim', 'vimdoc', 'xml', 'yaml', 'yaml.ghaction',
   }
   -- stylua: ignore end
-  local isnt_installed = function(lang)
-    return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
-  end
-  local to_install = vim.tbl_filter(isnt_installed, languages)
-  if #to_install > 0 then
-    require('nvim-treesitter').install(to_install)
-  end
+
+  later(function()
+    local isnt_installed = function(lang)
+      return #vim.api.nvim_get_runtime_file('parser/' .. lang .. '.*', false) == 0
+    end
+    local to_install = vim.tbl_filter(isnt_installed, languages)
+    if #to_install > 0 then
+      require('nvim-treesitter').install(to_install)
+    end
+  end)
 
   -- Enable treesitter after opening a file for a target language
   local filetypes = {}
@@ -242,28 +245,29 @@ end)
 
 -- LSP
 now_if_args(function()
+  vim.lsp.log.set_level(vim.log.levels.OFF)
+
+  require('mini.misc').safely('filetype:java', function()
+    add {
+      {
+        src = 'https://github.com/JavaHello/spring-boot.nvim',
+        version = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
+      },
+      'https://github.com/MunifTanjim/nui.nvim',
+      'https://github.com/mfussenegger/nvim-dap',
+
+      'https://github.com/nvim-java/nvim-java',
+    }
+
+    require('java').setup()
+  end)
+
   add {
     'https://github.com/neovim/nvim-lspconfig',
-    'https://github.com/mason-org/mason.nvim',
-    'https://github.com/mason-org/mason-lspconfig.nvim',
-    'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim',
     'https://github.com/folke/lazydev.nvim',
     'https://github.com/DrKJeff16/wezterm-types',
     'https://github.com/saecki/live-rename.nvim',
-    -- nvim-java stuff
-    {
-      src = 'https://github.com/JavaHello/spring-boot.nvim',
-      version = '218c0c26c14d99feca778e4d13f5ec3e8b1b60f0',
-    },
-    'https://github.com/MunifTanjim/nui.nvim',
-    'https://github.com/mfussenegger/nvim-dap',
-
-    'https://github.com/nvim-java/nvim-java',
   }
-
-  vim.lsp.log.set_level(vim.log.levels.OFF)
-
-  require('mason').setup {}
 
   require('lazydev').setup {
     library = {
@@ -295,15 +299,25 @@ now_if_args(function()
     'json-lsp',
     'jq',
   }
-  require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-  vim.cmd.MasonToolsInstall()
 
-  -- Enable LSP servers
-  require('mason-lspconfig').setup { automatic_enable = true }
+  later(function()
+    add {
+      'https://github.com/mason-org/mason.nvim',
+      'https://github.com/mason-org/mason-lspconfig.nvim',
+      'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim',
+    }
+
+    require('mason').setup {}
+    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
+    vim.cmd.MasonToolsInstall()
+
+    -- Enable LSP servers
+    require('mason-lspconfig').setup { automatic_enable = true }
+  end)
 end)
 
 -- Formatter
-later(function()
+now_if_args(function()
   add { 'https://github.com/stevearc/conform.nvim' }
 
   local disable_filetypes = { c = true, cpp = true }
@@ -602,7 +616,7 @@ later(function()
 end)
 
 -- Typescript stuff
-later(function()
+require('mini.misc').safely('filetype:typescript,typescriptreact,javascript', function()
   add {
     'https://github.com/pmizio/typescript-tools.nvim',
     'https://github.com/nvim-lua/plenary.nvim',
@@ -614,7 +628,7 @@ later(function()
 end)
 
 -- Support markdown
-later(function()
+require('mini.misc').safely('filetype:markdown', function()
   add {
     'https://github.com/MeanderingProgrammer/render-markdown.nvim',
     'https://github.com/nvim-treesitter/nvim-treesitter',
@@ -668,7 +682,7 @@ later(function()
 end)
 
 -- Automatically set indentation
-later(function()
+now_if_args(function()
   add { 'https://github.com/NMAC427/guess-indent.nvim' }
 
   require('guess-indent').setup()
