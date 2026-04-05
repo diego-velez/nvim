@@ -83,7 +83,6 @@ end)
 later(function()
   local ai = require 'mini.ai'
   ai.setup {
-    n_lines = 500,
     custom_textobjects = {
       -- Code Block
       o = ai.gen_spec.treesitter {
@@ -105,6 +104,16 @@ later(function()
 
       -- [D]igits
       d = MiniExtra.gen_ai_spec.number(),
+    },
+
+    mappings = {
+      around_next = '',
+      inside_next = '',
+      around_last = '',
+      inside_last = '',
+
+      goto_left = '',
+      goto_right = '',
     },
   }
 end)
