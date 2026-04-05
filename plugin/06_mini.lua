@@ -266,59 +266,6 @@ end)
 -- NOTE: Start mini.clue configuration
 later(function()
   -- stylua: ignore start
-  local z_clues = {
-      { mode = 'n', keys = 'zA',       desc = 'Toggle folds recursively' },
-      { mode = 'n', keys = 'za',       desc = 'Toggle fold' },
-      { mode = 'n', keys = 'zb',       desc = 'Redraw at bottom' },
-      { mode = 'n', keys = 'zC',       desc = 'Close folds recursively' },
-      { mode = 'n', keys = 'zc',       desc = 'Close fold' },
-      { mode = 'n', keys = 'zD',       desc = 'Delete folds recursively' },
-      { mode = 'n', keys = 'zd',       desc = 'Delete fold' },
-      { mode = 'n', keys = 'zE',       desc = 'Eliminate all folds' },
-      { mode = 'n', keys = 'ze',       desc = 'Scroll to cursor on right screen side' },
-      { mode = 'n', keys = 'zF',       desc = 'Create fold' },
-      { mode = 'n', keys = 'zf',       desc = 'Create fold (operator)' },
-      { mode = 'n', keys = 'zG',       desc = 'Temporarily mark as correctly spelled' },
-      { mode = 'n', keys = 'zg',       desc = 'Permanently mark as correctly spelled' },
-      { mode = 'n', keys = 'zH',       desc = 'Scroll left half screen' },
-      { mode = 'n', keys = 'z<left>',  desc = 'Scroll left',  postkeys = 'z' },
-      { mode = 'n', keys = 'zi',       desc = "Toggle 'foldenable'" },
-      { mode = 'n', keys = 'zj',       desc = 'Move to start of next fold' },
-      { mode = 'n', keys = 'zk',       desc = 'Move to end of previous fold' },
-      { mode = 'n', keys = 'zL',       desc = 'Scroll right half screen' },
-      { mode = 'n', keys = 'z<right>', desc = 'Scroll right', postkeys = 'z' },
-      { mode = 'n', keys = 'zM',       desc = 'Close all folds' },
-      { mode = 'n', keys = 'zm',       desc = 'Fold more' },
-      { mode = 'n', keys = 'zN',       desc = "Set 'foldenable'" },
-      { mode = 'n', keys = 'zn',       desc = "Reset 'foldenable'" },
-      { mode = 'n', keys = 'zO',       desc = 'Open folds recursively' },
-      { mode = 'n', keys = 'zo',       desc = 'Open fold' },
-      { mode = 'n', keys = 'zP',       desc = 'Paste without trailspace' },
-      { mode = 'n', keys = 'zp',       desc = 'Paste without trailspace' },
-      { mode = 'n', keys = 'zR',       desc = 'Open all folds' },
-      { mode = 'n', keys = 'zr',       desc = 'Fold less' },
-      { mode = 'n', keys = 'zs',       desc = 'Scroll to cursor on left screen side' },
-      { mode = 'n', keys = 'zt',       desc = 'Redraw at top' },
-      { mode = 'n', keys = 'zu',       desc = '+Undo spelling commands' },
-      { mode = 'n', keys = 'zug',      desc = 'Undo `zg`' },
-      { mode = 'n', keys = 'zuG',      desc = 'Undo `zG`' },
-      { mode = 'n', keys = 'zuw',      desc = 'Undo `zw`' },
-      { mode = 'n', keys = 'zuW',      desc = 'Undo `zW`' },
-      { mode = 'n', keys = 'zv',       desc = 'Open enough folds' },
-      { mode = 'n', keys = 'zW',       desc = 'Temporarily mark as incorrectly spelled' },
-      { mode = 'n', keys = 'zw',       desc = 'Permanently mark as incorrectly spelled' },
-      { mode = 'n', keys = 'zX',       desc = 'Update folds' },
-      { mode = 'n', keys = 'zx',       desc = 'Update folds + open enough folds' },
-      { mode = 'n', keys = 'zy',       desc = 'Yank without trailing spaces (operator)' },
-      { mode = 'n', keys = 'zz',       desc = 'Redraw at center' },
-      { mode = 'n', keys = 'z+',       desc = 'Redraw under bottom at top' },
-      { mode = 'n', keys = 'z-',       desc = 'Redraw at bottom + cursor on first non-blank' },
-      { mode = 'n', keys = 'z.',       desc = 'Redraw at center + cursor on first non-blank' },
-      { mode = 'n', keys = 'z=',       desc = 'Show spelling suggestions' },
-      { mode = 'n', keys = 'z^',       desc = 'Redraw above top at bottom' },
-      { mode = 'x', keys = 'zf',       desc = 'Create fold from selection' },
-    }
-
   local window_clues = {
     { mode = 'n', keys = '<C-w>+',       desc = 'Increase height',         postkeys = '<C-w>'},
     { mode = 'n', keys = '<C-w>-',       desc = 'Decrease height',         postkeys = '<C-w>'},
@@ -368,60 +315,39 @@ later(function()
 
   local miniclue = require 'mini.clue'
   miniclue.setup {
+    -- Explicitly opt-in for set of common keys to trigger clue window
     triggers = {
-      -- Leader triggers
-      { mode = 'n', keys = '<Leader>' },
-      { mode = 'x', keys = '<Leader>' },
-
-      -- Built-in completion
-      { mode = 'i', keys = '<C-x>' },
-
-      -- `g` key
-      { mode = 'n', keys = 'g' },
-      { mode = 'x', keys = 'g' },
-
-      -- Marks
-      { mode = 'n', keys = "'" },
-      { mode = 'n', keys = '`' },
-      { mode = 'x', keys = "'" },
-      { mode = 'x', keys = '`' },
-
-      -- Registers
-      { mode = 'n', keys = '"' },
-      { mode = 'x', keys = '"' },
-      { mode = 'i', keys = '<C-r>' },
-      { mode = 'c', keys = '<C-r>' },
-
-      -- Window commands
-      { mode = 'n', keys = '<C-w>' },
-
-      -- `z` key
-      { mode = 'n', keys = 'z' },
-      { mode = 'x', keys = 'z' },
-
-      -- Brackets
-      { mode = 'n', keys = '[' },
-      { mode = 'n', keys = ']' },
+      { mode = { 'n', 'x' }, keys = '<leader>' }, -- Leader triggers
+      { mode = { 'n', 'x' }, keys = '[' }, -- mini.bracketed
+      { mode = { 'n', 'x' }, keys = ']' },
+      { mode = 'i', keys = '<C-x>' }, -- Built-in completion
+      { mode = { 'n', 'x' }, keys = 'g' }, -- `g` key
+      { mode = { 'n', 'x' }, keys = "'" }, -- Marks
+      { mode = { 'n', 'x' }, keys = '`' },
+      { mode = { 'n', 'x' }, keys = '"' }, -- Registers
+      { mode = { 'i', 'c' }, keys = '<C-r>' },
+      { mode = 'n', keys = '<C-w>' }, -- Window commands
+      { mode = { 'n', 'x' }, keys = 'z' }, -- `z` key
     },
 
     clues = {
       {
-        { mode = 'n', keys = '<leader>t', desc = '[T]oggle' },
-        { mode = 'n', keys = '<leader>c', desc = '[C]ode' },
-        { mode = 'n', keys = '<leader>s', desc = '[S]earch' },
-        { mode = 'n', keys = '<leader>l', desc = '[L]ist' },
-        { mode = 'n', keys = '<leader>o', desc = '[O]verseer' },
-        { mode = 'n', keys = '<leader>u', desc = 'UI' },
-        { mode = 'n', keys = '<leader><tab>', desc = 'Tabs' },
-        { mode = 'n', keys = '<leader>g', desc = '[G]it' },
-        { mode = 'x', keys = '<leader>g', desc = '[G]it' },
+        { mode = 'n', keys = '<leader>b', desc = '+Buffer' },
+        { mode = 'n', keys = '<leader>t', desc = '+Toggle' },
+        { mode = 'n', keys = '<leader>c', desc = '+Code' },
+        { mode = 'n', keys = '<leader>s', desc = '+Search' },
+        { mode = 'n', keys = '<leader>l', desc = '+List' },
+        { mode = 'n', keys = '<leader>o', desc = '+Overseer' },
+        { mode = 'n', keys = '<leader>u', desc = '+UI' },
+        { mode = 'n', keys = '<leader>g', desc = '+Git' },
+        { mode = 'x', keys = '<leader>g', desc = '+Git' },
       },
       miniclue.gen_clues.builtin_completion(),
       miniclue.gen_clues.g(),
       miniclue.gen_clues.marks(),
       miniclue.gen_clues.registers(),
       miniclue.gen_clues.square_brackets(),
-      z_clues,
+      miniclue.gen_clues.z(),
       window_clues,
     },
 
