@@ -262,6 +262,10 @@ now_if_args(function()
     require('java').setup()
   end)
 
+  require('mini.misc').safely('filetype:nix', function()
+    vim.lsp.enable 'nixd'
+  end)
+
   add {
     'https://github.com/neovim/nvim-lspconfig',
     'https://github.com/folke/lazydev.nvim',
@@ -367,6 +371,7 @@ now_if_args(function()
       terraform = { 'hclfmt' },
       json = { 'jq' },
       jsonc = { 'biome' },
+      nix = { 'nixfmt' },
     },
   }
 
