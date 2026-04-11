@@ -65,27 +65,35 @@ Config.later(function()
     end
   end
 
-  --- @param open_current_file boolean If true, will open mini.files in the current file,
-  --- otherwise opents on cwd.
-  local mini_files_toggle = function(open_current_file)
+  local mini_files_toggle = function()
     if MiniFiles.close() then
       return
     end
 
     local current_file = vim.api.nvim_buf_get_name(0)
     -- Needed for starter dashboard
-    if vim.fn.filereadable(current_file) == 0 or not open_current_file then
+    if vim.fn.filereadable(current_file) == 0 then
       MiniFiles.open()
     else
       MiniFiles.open(current_file, true)
     end
   end
-  vim.keymap.set('n', '<leader>e', function()
-    mini_files_toggle(true)
-  end, { desc = 'Toggle [e]xplorer on current file' })
-  vim.keymap.set('n', '<leader>E', function()
-    mini_files_toggle(false)
-  end, { desc = 'Toggle [E]xplorer on cwd' })
+  local open_file_in_explorer = function()
+    local file = vim.fn.expand '%:p'
+    vim.system({ 'thunar', file }, { detach = true })
+  end
+  vim.keymap.set(
+    'n',
+    '<leader>e',
+    mini_files_toggle,
+    { desc = 'Toggle [e]xplorer on current file' }
+  )
+  vim.keymap.set(
+    'n',
+    '<leader>E',
+    open_file_in_explorer,
+    { desc = 'Open file exploror for current file' }
+  )
 
   local map_split = function(buf_id, lhs, direction)
     local rhs = function()
