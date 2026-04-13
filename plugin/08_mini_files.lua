@@ -232,6 +232,19 @@ Config.later(function()
     group = augroup,
     pattern = { 'MiniFilesActionRename', 'MiniFilesActionMove' },
     callback = function(args)
+      -- Auto file to Git in order for it to detect file was renamed or moved
+      -- We check because if the git add command runs it'll notify the error
+      local is_inside_git_repo = vim
+        .system({
+          'git',
+          'rev-parse',
+          '--is-inside-work-tree',
+        }, { text = true })
+        :wait()
+      if is_inside_git_repo.code ~= 0 then
+        return
+      end
+
       local from = args.data.from
       local to = args.data.to
       local lsp_changes = {
@@ -261,19 +274,6 @@ Config.later(function()
         if client:supports_method(lsp_rename_files_method) then
           client:notify(lsp_rename_files_method, lsp_changes)
         end
-      end
-
-      -- Auto file to Git in order for it to detect file was renamed or moved
-      -- We check because if the git add command runs it'll notify the error
-      local is_inside_git_repo = vim
-        .system({
-          'git',
-          'rev-parse',
-          '--is-inside-work-tree',
-        }, { text = true })
-        :wait()
-      if is_inside_git_repo.code ~= 0 then
-        return
       end
 
       pcall(vim.cmd, 'Git add ' .. from .. ' ' .. to)
