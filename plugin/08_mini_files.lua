@@ -213,6 +213,17 @@ Config.later(function()
           },
         })
       end, { buffer = buf_id, desc = 'Find files in directory' })
+
+      vim.keymap.set('n', 'O', function()
+        local curr_entry = MiniFiles.get_fs_entry(buf_id)
+        if not curr_entry then
+          return
+        end
+
+        vim.notify(curr_entry.path)
+        local cmd = { 'xdg-open', curr_entry.path }
+        vim.system(cmd, { stdout = false, stderr = false, detach = true })
+      end, { buffer = buf_id, desc = '[O]pen with default app' })
     end,
   })
 
