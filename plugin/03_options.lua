@@ -102,6 +102,9 @@ vim.o.formatoptions = 'rqnljp'
 -- Treat dash as 'word' textobject part
 vim.o.iskeyword = '@,48-57,_,192-255,-'
 
+-- More intuitive <C-a> increment and <C-x> decrement
+vim.o.nrformats = 'unsigned'
+
 -- Configure diagnostics
 Config.later(function()
   ---@type vim.diagnostic.Opts
