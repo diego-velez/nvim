@@ -727,3 +727,14 @@ later(function()
     end,
   })
 end)
+
+-- Extend '%'
+Config.later(function()
+  vim.pack.add { 'https://github.com/andymass/vim-matchup' }
+
+  ---@type matchup.Config
+  require('match-up').setup {}
+
+  vim.g.matchup_matchparen_deferred = 1
+  vim.g.matchup_matchparen_hi_surround_always = 1
+end)

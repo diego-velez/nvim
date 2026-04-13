@@ -158,6 +158,10 @@
       "rev": "c2f5910074103705661e9651aa841e0d7eea9932",
       "src": "https://github.com/pmizio/typescript-tools.nvim"
     },
+    "vim-matchup": {
+      "rev": "dccb2d12ef2a703d2f076b3cda36a3339449d1eb",
+      "src": "https://github.com/andymass/vim-matchup"
+    },
     "wezterm-types": {
       "rev": "74213f9dbb0ac2809122f5c595fee262ff387d99",
       "src": "https://github.com/DrKJeff16/wezterm-types"
