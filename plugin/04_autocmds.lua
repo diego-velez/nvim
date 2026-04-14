@@ -88,7 +88,30 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup("Proper 'formatoptions'", {}),
   desc = "Proper 'formatoptions'",
+  command = 'setlocal formatoptions-=c formatoptions-=o',
+})
+
+-- Keep cursor centered
+local restore_cursor = vim.api.nvim_create_augroup('Restore cursor position', { clear = true })
+vim.api.nvim_create_autocmd('BufReadPost', {
+  group = restore_cursor,
+  pattern = '!help',
   callback = function()
-    vim.cmd 'setlocal formatoptions-=c formatoptions-=o'
+    local line = vim.fn.line [['"]]
+    if line > 0 and line <= vim.fn.line '$' then
+      vim.schedule(function()
+        vim.cmd.normal { [[g'"]], bang = true }
+        vim.cmd.normal { 'zz', bang = true }
+      end)
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd('BufWinEnter', {
+  group = restore_cursor,
+  callback = function()
+    vim.schedule(function()
+      vim.cmd.normal { 'zz', bang = true }
+    end)
   end,
 })
