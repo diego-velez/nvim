@@ -690,7 +690,8 @@ end)
 now_if_args(function()
   add { 'https://github.com/NMAC427/guess-indent.nvim' }
 
-  require('guess-indent').setup()
+  ---@type GuessIndentConfig
+  require('guess-indent').setup {}
 end)
 
 -- Cool cursor animations
@@ -729,12 +730,9 @@ later(function()
 end)
 
 -- Extend '%'
-Config.later(function()
+later(function()
   vim.pack.add { 'https://github.com/andymass/vim-matchup' }
 
   ---@type matchup.Config
   require('match-up').setup {}
-
-  vim.g.matchup_matchparen_deferred = 1
-  vim.g.matchup_matchparen_hi_surround_always = 1
 end)
