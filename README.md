@@ -6,7 +6,7 @@
 
 ## Overview
 
-This config started from [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) and evolved into what it is today :)
+This config started from [kickstart.nvim](https://github.com/nvim-lua/kickstart.nvim) and evolved into what it is today. Currently, the config is based around the [MiniMax](https://github.com/nvim-mini/minimax) way.
 
 I want minimal mental overhead, with as much functionality as possible, for this reason I use mneumonic keymaps.
 
