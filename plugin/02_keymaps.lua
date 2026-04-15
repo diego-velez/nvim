@@ -37,7 +37,7 @@ nmap(']p', '<cmd>exe "iput " . v:register<CR>', 'Paste below')
 nmap('J', 'mzJ`z')
 
 -- Stop automatically copying
-vim.keymap.set('x', 'p', [["_dp]])
+vim.keymap.set('x', 'p', [["_dP]])
 nmap('C', '"_C')
 
 -- Disable Q because apparently it's trash lmao
