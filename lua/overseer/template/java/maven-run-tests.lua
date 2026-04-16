@@ -1,5 +1,5 @@
 ---@module "overseer"
----@type overseer.TemplateDefinition
+---@type overseer.TemplateFileDefinition
 return {
   name = 'Maven Test',
   builder = function(_)

@@ -1,3 +1,5 @@
+---@module "overseer"
+---@type overseer.TemplateFileDefinition
 return {
   name = 'Run Frontend (Real)',
   builder = function(_)

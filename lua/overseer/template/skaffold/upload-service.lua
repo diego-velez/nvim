@@ -1,3 +1,5 @@
+---@module "overseer"
+---@type overseer.TemplateFileDefinition
 return {
   name = 'Upload Service (Skaffold)',
   builder = function(_)

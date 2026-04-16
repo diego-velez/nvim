@@ -645,20 +645,11 @@ end)
 
 -- Task runner
 later(function()
-  add {
-    {
-      src = 'https://github.com/diego-velez/overseer.nvim',
-      version = 'task_output_filetype',
-    },
-  }
+  add { 'https://github.com/stevearc/overseer.nvim' }
 
+  ---@module "overseer"
+  ---@type overseer.SetupOpts
   require('overseer').setup {
-    templates = {
-      'builtin',
-      'mise',
-      'java',
-      'skaffold',
-    },
     dap = false,
     form = {
       win_opts = {
