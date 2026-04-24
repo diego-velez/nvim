@@ -105,10 +105,6 @@ vim.o.iskeyword = '@,48-57,_,192-255,-'
 -- More intuitive <C-a> increment and <C-x> decrement
 vim.o.nrformats = 'unsigned'
 
--- Project local .init.lua for predefined project marks
-vim.o.exrc = true
-vim.o.secure = true -- Must run `:trust` to mark file as trusted
-
 -- Configure diagnostics
 Config.later(function()
   ---@type vim.diagnostic.Opts
