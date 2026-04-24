@@ -108,6 +108,15 @@ nmap('<leader>sR', function()
   }
 end, '[S]earch and [R]eplace')
 
+-- e is for 'explorer'
+local open_file_in_explorer = function()
+  local file = vim.fn.expand '%:p'
+  vim.system({ 'thunar', file }, { detach = true })
+end
+
+nmap('<leader>e', '<cmd>lua MiniFiles.toggle()<cr>', 'Toggle [e]xplorer on current file')
+nmap('<leader>E', open_file_in_explorer, 'Open file exploror for current file')
+
 -- g is for 'Git'. Common usage:
 -- - `<Leader>gl` - open LazyGit
 -- - `<Leader>go` - toggle 'mini.diff' overlay to show in-buffer unstaged changes

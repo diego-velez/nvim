@@ -21,24 +21,24 @@ Config.later(function()
       permanent_delete = false,
     },
     windows = {
-      max_number = 3,
+      max_number = 1,
     },
   }
 
-  -- Add common bookmarks.
-  -- `'c` to navigate into your config directory
-  -- `g?` to see available bookmarks
-  vim.api.nvim_create_autocmd('User', {
-    group = augroup,
-    pattern = 'MiniFilesExplorerOpen',
-    desc = 'Add bookmarks to mini.files',
-    callback = function()
-      MiniFiles.set_bookmark('c', vim.fn.stdpath 'config', { desc = 'Config' })
-      local vimpack_plugins = vim.fn.stdpath 'data' .. '/site/pack/core/opt'
-      MiniFiles.set_bookmark('p', vimpack_plugins, { desc = 'Plugins' })
-      MiniFiles.set_bookmark('w', vim.fn.getcwd, { desc = 'Working directory' })
-    end,
-  })
+  ---Toggle MiniFiles window
+  MiniFiles.toggle = function()
+    if MiniFiles.close() then
+      return
+    end
+
+    local current_file = vim.api.nvim_buf_get_name(0)
+    -- Needed for starter dashboard
+    if vim.fn.filereadable(current_file) == 0 then
+      MiniFiles.open()
+    else
+      MiniFiles.open(current_file, true)
+    end
+  end
 
   -- Auto-expand empty & nested dirs
   -- See https://github.com/echasnovski/mini.nvim/discussions/1184
@@ -53,7 +53,9 @@ Config.later(function()
     expand_single_dir()
   end)
 
-  local go_in_and_expand = function()
+  ---Go in entry under cursor, will expand child folders if there is only one child folder,
+  ---and if current entry file, expand.
+  MiniFiles.go_in_and_expand = function()
     local fs_entry = MiniFiles.get_fs_entry()
     local should_expand = fs_entry ~= nil and fs_entry.fs_type == 'file'
 
@@ -65,42 +67,14 @@ Config.later(function()
     end
   end
 
-  local mini_files_toggle = function()
-    if MiniFiles.close() then
-      return
-    end
-
-    local current_file = vim.api.nvim_buf_get_name(0)
-    -- Needed for starter dashboard
-    if vim.fn.filereadable(current_file) == 0 then
-      MiniFiles.open()
-    else
-      MiniFiles.open(current_file, true)
-    end
-  end
-  local open_file_in_explorer = function()
-    local file = vim.fn.expand '%:p'
-    vim.system({ 'thunar', file }, { detach = true })
-  end
-  vim.keymap.set(
-    'n',
-    '<leader>e',
-    mini_files_toggle,
-    { desc = 'Toggle [e]xplorer on current file' }
-  )
-  vim.keymap.set(
-    'n',
-    '<leader>E',
-    open_file_in_explorer,
-    { desc = 'Open file exploror for current file' }
-  )
-
+  ---Opens the selected file in a split (see `:h opening-window`)
   local map_split = function(buf_id, lhs, direction)
     local rhs = function()
       local get_entry = MiniFiles.get_fs_entry()
 
       -- Don't do anything if dealing with directory
       if get_entry == nil or get_entry.fs_type == 'directory' then
+        vim.notify('Cannot split a folder', vim.log.levels.WARN)
         return
       end
 
@@ -121,6 +95,7 @@ Config.later(function()
     vim.keymap.set('n', lhs, rhs, { buffer = buf_id, desc = desc })
   end
 
+  -- Toggle dotfiles in window
   local show_dotfiles = true
 
   local filter_show_all = function()
@@ -131,13 +106,15 @@ Config.later(function()
     return not vim.startswith(fs_entry.name, '.')
   end
 
-  local toggle_dotfiles = function()
+  ---Toggle dotfiles in window
+  MiniFiles.toggle_dotfiles = function()
     show_dotfiles = not show_dotfiles
     local new_filter = show_dotfiles and filter_show_all or filter_hide_dotfiles
     MiniFiles.refresh { content = { filter = new_filter } }
   end
 
-  local files_grug_far = function(_)
+  ---Open grug-far on current folder
+  MiniFiles.grug_far = function()
     local cur_entry_path = MiniFiles.get_fs_entry().path
     local prefills = { paths = vim.fs.dirname(cur_entry_path) }
 
@@ -155,81 +132,106 @@ Config.later(function()
     end
   end
 
+  ---Open MiniPick grep_live picker in current folder
+  MiniFiles.grep_live = function()
+    local curr_entry = MiniFiles.get_fs_entry()
+    if not curr_entry then
+      return
+    end
+
+    local cur_entry_path = curr_entry.path
+    local path = vim.fs.dirname(cur_entry_path)
+
+    MiniPick.builtin.grep_live({}, {
+      source = {
+        cwd = path,
+      },
+    })
+  end
+
+  ---Open MiniPick files picker in current folder
+  MiniFiles.files = function()
+    local cur_entry_path = MiniFiles.get_fs_entry().path
+    local path = vim.fs.dirname(cur_entry_path)
+
+    MiniPick.builtin.files({}, {
+      source = {
+        cwd = path,
+      },
+    })
+  end
+
+  ---Open file with system default app
+  MiniFiles.open_in_app = function()
+    local curr_entry = MiniFiles.get_fs_entry()
+    if not curr_entry then
+      vim.notify('Cursor is not on a valid entry', vim.log.levels.WARN)
+      return
+    end
+
+    vim.ui.open(curr_entry.path)
+  end
+
+  ---Yank in register full path of entry under cursor
+  MiniFiles.yank = function()
+    local curr_entry = MiniFiles.get_fs_entry()
+    if not curr_entry then
+      vim.notify('Cursor is not on a valid entry', vim.log.levels.WARN)
+      return
+    end
+
+    vim.fn.setreg(vim.v.register, curr_entry.path)
+  end
+
+  -- Add common bookmarks.
+  -- `'c` to navigate into your config directory
+  -- `g?` to see available bookmarks
+  vim.api.nvim_create_autocmd('User', {
+    group = augroup,
+    pattern = 'MiniFilesExplorerOpen',
+    desc = 'Add bookmarks to mini.files',
+    callback = function()
+      MiniFiles.set_bookmark('c', vim.fn.stdpath 'config', { desc = 'Config' })
+      local vimpack_plugins = vim.fn.stdpath 'data' .. '/site/pack/core/opt'
+      MiniFiles.set_bookmark('p', vimpack_plugins, { desc = 'Plugins' })
+      MiniFiles.set_bookmark('w', vim.fn.getcwd, { desc = 'Working directory' })
+      MiniFiles.set_bookmark('~', '~', { desc = 'Home directory' })
+    end,
+  })
+
   vim.api.nvim_create_autocmd('User', {
     group = augroup,
     pattern = 'MiniFilesBufferCreate',
+    desc = 'Create mappings for MiniFiles explorer',
     callback = function(args)
       local buf_id = args.data.buf_id
 
       vim.b[buf_id].minianimate_disable = true
 
-      vim.keymap.set('n', 'G', 'G', { buffer = buf_id })
-      vim.keymap.set('n', '<C-u>', '<C-u>', { buffer = buf_id })
-      vim.keymap.set('n', '<C-d>', '<C-d>', { buffer = buf_id })
+      local nmap = function(lhs, rhs, desc)
+        vim.keymap.set('n', lhs, rhs, { buffer = buf_id, desc = desc })
+      end
 
-      vim.keymap.set(
-        'n',
-        '<right>',
-        go_in_and_expand,
-        { buffer = buf_id, desc = 'Go in and expand' }
-      )
-
+      nmap('G', 'G')
+      nmap('<C-u>', '<C-u>')
+      nmap('<C-d>', '<C-d>')
+      nmap('<right>', MiniFiles.go_in_and_expand, 'Go in and expand')
       map_split(buf_id, '<C-h>', 'belowright horizontal')
       map_split(buf_id, '<C-v>', 'belowright vertical')
-
-      vim.keymap.set(
-        'n',
-        '.',
-        toggle_dotfiles,
-        { buffer = buf_id, desc = 'Toggle hidden [.]files' }
-      )
-
-      vim.keymap.set('n', '<ESC>', MiniFiles.close, { buffer = buf_id, desc = 'Close Mini Files' })
-      vim.keymap.set('i', '<C-c>', MiniFiles.close, { buffer = buf_id, desc = 'Close Mini Files' })
-
-      vim.keymap.set(
-        'n',
-        '<leader>sR',
-        files_grug_far,
-        { buffer = buf_id, desc = 'Search and Replace in directory' }
-      )
-      vim.keymap.set('n', '<leader>sg', function()
-        local cur_entry_path = MiniFiles.get_fs_entry().path
-        local path = vim.fs.dirname(cur_entry_path)
-
-        MiniPick.builtin.grep_live({}, {
-          source = {
-            cwd = path,
-          },
-        })
-      end, { buffer = buf_id, desc = 'Grep in directory' })
-      vim.keymap.set('n', '<leader>sf', function()
-        local cur_entry_path = MiniFiles.get_fs_entry().path
-        local path = vim.fs.dirname(cur_entry_path)
-
-        MiniPick.builtin.files({}, {
-          source = {
-            cwd = path,
-          },
-        })
-      end, { buffer = buf_id, desc = 'Find files in directory' })
-
-      vim.keymap.set('n', 'O', function()
-        local curr_entry = MiniFiles.get_fs_entry(buf_id)
-        if not curr_entry then
-          return
-        end
-
-        vim.notify(curr_entry.path)
-        local cmd = { 'xdg-open', curr_entry.path }
-        vim.system(cmd, { stdout = false, stderr = false, detach = true })
-      end, { buffer = buf_id, desc = '[O]pen with default app' })
+      nmap('g.', MiniFiles.toggle_dotfiles, 'Toggle hidden [.]files')
+      nmap('<ESC>', MiniFiles.close, 'Close Mini Files')
+      nmap('<leader>sR', MiniFiles.grug_far, 'Search and Replace in directory')
+      nmap('<leader>sg', MiniFiles.grep_live, 'Grep in directory')
+      nmap('<leader>sf', MiniFiles.files, 'Find files in directory')
+      nmap('O', MiniFiles.open_in_app, '[O]pen with default app')
+      nmap('Y', MiniFiles.yank, '[Y]ank path')
     end,
   })
 
   vim.api.nvim_create_autocmd('User', {
     group = augroup,
     pattern = 'MiniFilesWindowUpdate',
+    desc = 'Show number column in MiniFiles explorer',
     callback = function(args)
       -- Only show number column in the current directory
       local current_buf = args.buf == args.data.buf_id
@@ -238,24 +240,13 @@ Config.later(function()
     end,
   })
 
-  -- Use to try and automatically detect
+  -- LSP Integration
+  -- See https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/rename.lua#L85
   vim.api.nvim_create_autocmd('User', {
     group = augroup,
     pattern = { 'MiniFilesActionRename', 'MiniFilesActionMove' },
+    desc = 'MiniFiles LSP Integration',
     callback = function(args)
-      -- Auto file to Git in order for it to detect file was renamed or moved
-      -- We check because if the git add command runs it'll notify the error
-      local is_inside_git_repo = vim
-        .system({
-          'git',
-          'rev-parse',
-          '--is-inside-work-tree',
-        }, { text = true })
-        :wait()
-      if is_inside_git_repo.code ~= 0 then
-        return
-      end
-
       local from = args.data.from
       local to = args.data.to
       local lsp_changes = {
@@ -267,8 +258,6 @@ Config.later(function()
         },
       }
 
-      -- LSP integation
-      -- See https://github.com/folke/snacks.nvim/blob/bc0630e43be5699bb94dadc302c0d21615421d93/lua/snacks/rename.lua#L85
       local clients = vim.lsp.get_clients()
       for _, client in ipairs(clients) do
         local lsp_rename_files_method = vim.lsp.protocol.Methods.workspace_willRenameFiles
@@ -286,7 +275,30 @@ Config.later(function()
           client:notify(lsp_rename_files_method, lsp_changes)
         end
       end
+    end,
+  })
 
+  -- Git Integration
+  vim.api.nvim_create_autocmd('User', {
+    group = augroup,
+    pattern = { 'MiniFilesActionRename', 'MiniFilesActionMove' },
+    desc = 'MiniFiles Git Integration',
+    callback = function(args)
+      -- We check because if the git add command runs it'll notify the error
+      local is_inside_git_repo = vim
+        .system({
+          'git',
+          'rev-parse',
+          '--is-inside-work-tree',
+        }, { text = true })
+        :wait()
+      if is_inside_git_repo.code ~= 0 then
+        return
+      end
+
+      -- Auto add file to Git in order for it to detect that the file was renamed or moved
+      local from = args.data.from
+      local to = args.data.to
       pcall(vim.cmd, 'Git add ' .. from .. ' ' .. to)
     end,
   })
