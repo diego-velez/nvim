@@ -132,10 +132,6 @@
       "rev": "c85bdbb25db096fbcf616bc4e1357bd61fe2c199",
       "src": "https://github.com/sphamba/smear-cursor.nvim"
     },
-    "spear.nvim": {
-      "rev": "352b55bcfc7609f63b910ce6081baa49b1ea7c41",
-      "src": "https://github.com/diego-velez/spear.nvim"
-    },
     "spring-boot.nvim": {
       "rev": "218c0c26c14d99feca778e4d13f5ec3e8b1b60f0",
       "src": "https://github.com/JavaHello/spring-boot.nvim",

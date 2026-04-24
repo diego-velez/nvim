@@ -137,19 +137,6 @@ nmap('<leader>cr', '<cmd>lua require("live-rename").rename({insert=true})<cr>', 
 nmap('h', '<cmd>lua vim.lsp.buf.hover()<cr>', 'LSP: [H]over')
 nmap('K', '<nop>', '')
 
--- Spear
-nmap('<leader>la', '<cmd>Spear add<cr>', '[A]dd file to list')
-nmap('<leader>ld', '<cmd>Spear remove<cr>', '[D]elete file from list')
-nmap('<leader>lD', '<cmd>Spear delete<cr>', '[D]elete list')
-nmap('<leader>lc', '<cmd>Spear create<cr>', '[C]reate list')
-nmap('<leader>lr', '<cmd>Spear rename<cr>', '[R]ename list')
-nmap('<leader>ls', '<cmd>Spear switch<cr>', '[S]witch list')
-nmap('<leader>lu', '<cmd>Spear open<cr>', 'Spear UI')
-nmap('<A-n>', '<cmd>Spear select 1<cr>')
-nmap('<A-e>', '<cmd>Spear select 2<cr>')
-nmap('<A-i>', '<cmd>Spear select 3<cr>')
-nmap('<A-o>', '<cmd>Spear select 4<cr>')
-
 -- Overseer
 nmap('<leader>ow', '<cmd>OverseerToggle<cr>', 'Task list')
 nmap('<leader>oo', '<cmd>OverseerRun<cr>', 'Run task')

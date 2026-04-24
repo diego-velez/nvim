@@ -664,14 +664,6 @@ later(function()
   }
 end)
 
--- My spear :)
-later(function()
-  add {
-    'https://github.com/diego-velez/spear.nvim',
-    'https://github.com/nvim-lua/plenary.nvim',
-  }
-end)
-
 -- Undo tree
 later(function()
   vim.cmd.packadd 'nvim.undotree'
