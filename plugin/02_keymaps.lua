@@ -33,6 +33,58 @@ nmap('<leader>n', '<cmd>lua MiniNotify.show_history()<cr>', '[N]otification Hist
 nmap('[p', '<cmd>exe "iput! " . v:register<CR>', 'Paste above')
 nmap(']p', '<cmd>exe "iput " . v:register<CR>', 'Paste below')
 
+-- Diagnostics with priority
+local goto_diagnostic_using_priority = function(direction)
+  -- Our severity priority order
+  local severity_order = {
+    vim.diagnostic.severity.ERROR,
+    vim.diagnostic.severity.WARN,
+    vim.diagnostic.severity.INFO,
+    vim.diagnostic.severity.HINT,
+  }
+
+  -- Get all diagnostics in current buffer
+  local severities_in_buf = vim.diagnostic.count(0)
+
+  -- Check which is the highest priority in buffer
+  local highest_severity_found = nil
+  for _, s in ipairs(severity_order) do
+    if severities_in_buf[s] and severities_in_buf[s] > 0 then
+      highest_severity_found = s
+      break
+    end
+  end
+
+  -- Ignore if no diagnostics in buffer
+  if highest_severity_found == nil then
+    vim.notify('No diagnostic found!', vim.log.levels.WARN)
+    return
+  end
+
+  MiniBracketed.diagnostic(direction, { severity = highest_severity_found })
+end
+
+local goto_first_diagnostic = function()
+  goto_diagnostic_using_priority 'first'
+end
+
+local goto_last_diagnostic = function()
+  goto_diagnostic_using_priority 'last'
+end
+
+local goto_previous_diagnostic = function()
+  goto_diagnostic_using_priority 'backward'
+end
+
+local goto_next_diagnostic = function()
+  goto_diagnostic_using_priority 'forward'
+end
+
+nmap('[D', goto_first_diagnostic, 'Diagnostic first')
+nmap('[d', goto_previous_diagnostic, 'Diagnostic backward')
+nmap(']d', goto_next_diagnostic, 'Diagnostic forward')
+nmap(']D', goto_last_diagnostic, 'Diagnostic last')
+
 -- Have cursor stay in place when joining lines together
 nmap('J', 'mzJ`z')
 

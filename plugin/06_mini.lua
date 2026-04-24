@@ -433,6 +433,7 @@ end)
 later(function()
   require('mini.bracketed').setup {
     indent = { suffix = '' },
+    diagnostic = { suffix = '' },
   }
 end)
 
