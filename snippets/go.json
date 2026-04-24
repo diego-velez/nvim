@@ -1,0 +1,22 @@
+{
+  "iferr": {
+    "prefix": "iferr",
+    "body": [
+      "if err != nil {",
+      "\t$0",
+      "}"
+    ],
+    "description": "Error check"
+  },
+  "iferrhttp": {
+    "prefix": "iferrhttp",
+    "body": [
+      "if err != nil {",
+      "\t$1.logger.Error(\"$2\", \"error\", err)",
+      "\thttp.Error(w, http.StatusText(http.$3), http.$3)",
+      "\treturn",
+      "}"
+    ],
+    "description": "Erro check with http handling"
+  }
+}
