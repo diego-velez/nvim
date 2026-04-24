@@ -61,6 +61,7 @@ nmap('gcO', 'O<esc>Vcx<esc><cmd>normal gcc<cr>fxa<bs>', 'Add Comment Above')
 local new_scratch_buffer = function()
   vim.api.nvim_win_set_buf(0, vim.api.nvim_create_buf(true, true))
 end
+
 nmap('<leader>bn', new_scratch_buffer, 'New Buffer')
 nmap('<leader>bd', '<cmd>lua MiniBufremove.delete()<cr>', 'Delete Buffer')
 nmap('<leader>ba', '<cmd>b#<cr>', 'Alternate Buffer')
@@ -85,6 +86,14 @@ nmap('<leader>r', '<cmd>update<cr> <cmd>make<cr>', '[R]un file with :make')
 nmap('X', '"_0D', 'Delete line but leave an empty line')
 
 -- s is for 'search'.
+local open_grug = function()
+  local ext = vim.bo.buftype == '' and vim.fn.expand '%:e'
+  require('grug-far').open {
+    transient = true,
+    prefills = { filesFilter = ext and ext ~= '' and '*.' .. ext or nil },
+  }
+end
+
 nmap('<leader>/', '<cmd>Pick buf_lines<cr>', '[/] Fuzzily search in current buffer')
 nmap('<leader>so', '<cmd>Pick oldfiles<cr>', '[S]earch [O]ld Files')
 nmap('<leader>sr', '<cmd>Pick resume<cr>', '[S]earch [R]esume')
@@ -100,13 +109,7 @@ nmap('<leader>sC', '<cmd>Pick colorschemes<cr>', '[S]earch [C]olorscheme')
 nmap('<leader>sg', '<cmd>Pick grep_live<cr>', '[S]earch [G]rep')
 nmap('<leader>sw', '<cmd>Pick grep pattern="<cword>"<cr>', '[S]earch [W]ord')
 nmap('z=', '<cmd>Pick spellsuggest<cr>', 'Show spellings suggestions')
-nmap('<leader>sR', function()
-  local ext = vim.bo.buftype == '' and vim.fn.expand '%:e'
-  require('grug-far').open {
-    transient = true,
-    prefills = { filesFilter = ext and ext ~= '' and '*.' .. ext or nil },
-  }
-end, '[S]earch and [R]eplace')
+nmap('<leader>sR', open_grug, '[S]earch and [R]eplace')
 
 -- e is for 'explorer'
 local open_file_in_explorer = function()
@@ -144,7 +147,7 @@ nmap('<leader>ot', '<cmd>OverseerTaskAction<cr>', 'Task action')
 nmap('<leader>os', '<cmd>OverseerShell<cr>', 'Run shell command')
 
 -- Toggles
-nmap('<leader>tl', function()
+local toggle_linter = function()
   vim.diagnostic.enable(not vim.diagnostic.is_enabled())
 
   if vim.diagnostic.is_enabled() then
@@ -152,8 +155,9 @@ nmap('<leader>tl', function()
   else
     vim.notify('Lint disabled', vim.log.levels.INFO)
   end
-end, 'Toggle [l]inter')
-nmap('<leader>tc', function()
+end
+
+local toggle_context = function()
   local context = require 'treesitter-context'
 
   context.toggle()
@@ -162,18 +166,22 @@ nmap('<leader>tc', function()
   else
     vim.notify('Context disabled', vim.log.levels.INFO)
   end
-end, 'Toggle [c]ontext')
-vim.g.enable_autoformat = true
-nmap('<leader>tf', function()
-  vim.g.enable_autoformat = not vim.g.enable_autoformat
+end
 
-  if vim.g.enable_autoformat then
-    vim.notify('Autoformatting enabled', vim.log.levels.INFO)
-  else
-    vim.notify('Autoformatting disabled', vim.log.levels.INFO)
+local toggle_autoformat = function()
+  vim.g.enable_autoformat = true
+  return function()
+    vim.g.enable_autoformat = not vim.g.enable_autoformat
+
+    if vim.g.enable_autoformat then
+      vim.notify('Autoformatting enabled', vim.log.levels.INFO)
+    else
+      vim.notify('Autoformatting disabled', vim.log.levels.INFO)
+    end
   end
-end, 'Toggle auto [f]ormatting')
-nmap('<leader>th', function()
+end
+
+local toggle_highlighter = function()
   MiniHipatterns.toggle(0)
   vim.g.highlighting_enabled = not vim.g.highlighting_enabled
 
@@ -182,9 +190,14 @@ nmap('<leader>th', function()
   else
     vim.notify('Highlighting disabled', vim.log.levels.INFO)
   end
-end, 'Toggle [h]ighlighting')
-nmap(
-  '<leader>tu',
-  '<cmd>lua require("undotree").open({command="leftabove 40vnew"})<cr>',
-  'Toggle [u]ndo tree'
-)
+end
+
+local toggle_undotree = function()
+  require('undotree').open { command = 'leftabove 40vnew' }
+end
+
+nmap('<leader>tl', toggle_linter, 'Toggle [l]inter')
+nmap('<leader>tc', toggle_context, 'Toggle [c]ontext')
+nmap('<leader>tf', toggle_autoformat(), 'Toggle auto [f]ormatting')
+nmap('<leader>th', toggle_highlighter, 'Toggle [h]ighlighting')
+nmap('<leader>tu', toggle_undotree, 'Toggle [u]ndo tree')
