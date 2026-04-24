@@ -24,6 +24,10 @@
       "rev": "84a4987ff36798c2fc1169cbaff67960aed9776f",
       "src": "https://github.com/NMAC427/guess-indent.nvim"
     },
+    "guttermarks.nvim": {
+      "rev": "4b236b92caadabd9304cee958cdfe7b1b750e70d",
+      "src": "https://github.com/dimtion/guttermarks.nvim"
+    },
     "kulala.nvim": {
       "rev": "6656c9d332735ca6a27725e0fb45a1715c4372d9",
       "src": "https://github.com/mistweaverco/kulala.nvim"

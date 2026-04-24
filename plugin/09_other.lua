@@ -719,3 +719,8 @@ later(function()
   ---@type matchup.Config
   require('match-up').setup {}
 end)
+
+-- Show marks in gutter column
+later(function()
+  vim.pack.add { 'https://github.com/dimtion/guttermarks.nvim' }
+end)
