@@ -8,10 +8,6 @@
       "rev": "ae752c13e95fb7c5f58da4b5123cb804ea7568ee",
       "src": "https://github.com/Mofiqul/dracula.nvim.git"
     },
-    "edgy.nvim": {
-      "rev": "8bfd2808994a988c975694122f68624b8a219f5f",
-      "src": "https://github.com/folke/edgy.nvim"
-    },
     "gitsigns.nvim": {
       "rev": "4ed47e8c4c66c921dc1d6643977e0526e1f44396",
       "src": "https://github.com/lewis6991/gitsigns.nvim"
