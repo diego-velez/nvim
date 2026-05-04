@@ -262,10 +262,6 @@ now_if_args(function()
     require('java').setup()
   end)
 
-  require('mini.misc').safely('filetype:nix', function()
-    vim.lsp.enable 'nixd'
-  end)
-
   add {
     'https://github.com/neovim/nvim-lspconfig',
     'https://github.com/folke/lazydev.nvim',
@@ -282,42 +278,24 @@ now_if_args(function()
     },
   }
 
-  -- Make sure all LSPs and mason tools are installed
-  local ensure_installed = {
+  local lsps = {
     'actionlint',
     'templ',
     'gopls',
     'basedpyright',
     'lua_ls',
-    -- WARN: You need to have `openssl-devel` to install asm_lsp
     'asm_lsp',
     'clangd',
     'tinymist',
     'kotlin_lsp',
-    'qmlls',
     'ruff',
     'stylua', -- Used to format Lua code
     'bash-language-server',
-    'html-lsp',
-    'css-lsp',
-    'json-lsp',
     'jq',
+    'nixd',
   }
 
-  later(function()
-    add {
-      'https://github.com/mason-org/mason.nvim',
-      'https://github.com/mason-org/mason-lspconfig.nvim',
-      'https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim',
-    }
-
-    require('mason').setup {}
-    require('mason-tool-installer').setup { ensure_installed = ensure_installed }
-    vim.cmd.MasonToolsInstall()
-
-    -- Enable LSP servers
-    require('mason-lspconfig').setup { automatic_enable = true }
-  end)
+  vim.lsp.enable(lsps)
 end)
 
 -- Formatter
@@ -375,7 +353,7 @@ now_if_args(function()
     },
   }
 
-  vim.keymap.set('n', '<leader>f', function()
+  nmap('<leader>f', function()
     local bufnr = vim.api.nvim_get_current_buf()
     local buf_filetype = vim.bo[bufnr].filetype
 
@@ -385,7 +363,7 @@ now_if_args(function()
     end
 
     require('conform').format { async = true, lsp_format = lsp_format }
-  end, { desc = '[F]ormat buffer' })
+  end, '[F]ormat buffer')
 end)
 
 -- Linter
@@ -646,13 +624,13 @@ later(function()
         vim.keymap.set('n', lhs, rhs, { buffer = args.buf, desc = desc })
       end
 
-      map('<leader>r', '', '[R]un' )
-      map('<leader>rs', kulala.run, '[S]end request' )
-      map('<leader>ra', kulala.run_all, 'Send [A]ll requests' )
-      map('<leader>rp', kulala.replay, 'Run [P]revious' )
-      map('<leader>ru', kulala.toggle_view, 'Toggle UI' )
-      map('{', kulala.jump_prev, 'Previous Request' )
-      map('}', kulala.jump_next, 'Next Request' )
+      map('<leader>r', '', '[R]un')
+      map('<leader>rs', kulala.run, '[S]end request')
+      map('<leader>ra', kulala.run_all, 'Send [A]ll requests')
+      map('<leader>rp', kulala.replay, 'Run [P]revious')
+      map('<leader>ru', kulala.toggle_view, 'Toggle UI')
+      map('{', kulala.jump_prev, 'Previous Request')
+      map('}', kulala.jump_next, 'Next Request')
     end,
   })
 end)
