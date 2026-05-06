@@ -81,9 +81,6 @@ vim.o.foldenable = false
 -- Set rounded borders the default
 vim.o.winborder = 'rounded'
 
-vim.o.shell = '/bin/fish'
-
---
 vim.o.splitkeep = 'screen'
 vim.o.laststatus = 3
 
