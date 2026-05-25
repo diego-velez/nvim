@@ -543,15 +543,9 @@ later(function()
   }
 end)
 
--- Typescript stuff
+-- JS/TS stuff
 require('mini.misc').safely('filetype:typescript,typescriptreact,javascript', function()
-  add {
-    'https://github.com/pmizio/typescript-tools.nvim',
-    'https://github.com/nvim-lua/plenary.nvim',
-    'https://github.com/dmmulroy/ts-error-translator.nvim',
-  }
-
-  require('typescript-tools').setup {}
+  add { 'https://github.com/dmmulroy/ts-error-translator.nvim' }
   require('ts-error-translator').setup()
 end)
 
