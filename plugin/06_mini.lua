@@ -627,3 +627,8 @@ now_if_args(function()
   MiniMisc.setup_restore_cursor()
   MiniMisc.setup_termbg_sync()
 end)
+
+-- NOTE: Start mini.input configuration
+later(function()
+  require('mini.input').setup()
+end)

@@ -45,7 +45,7 @@
       "src": "https://github.com/nvim-java/lua-async-await"
     },
     "mini.nvim": {
-      "rev": "402ee6c6ec8ea44b22330446c8fb4e615fd3953e",
+      "rev": "cbae4fa396bbf9c802b3d2dc2e9c5362e8fb9468",
       "src": "https://github.com/nvim-mini/mini.nvim"
     },
     "nui.nvim": {
